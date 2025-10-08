@@ -1,0 +1,237 @@
+/* Genel Kapsayıcı ve Başlık Stilleri */
+.profile-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.profile-header h1 {
+    font-size: 2.2em;
+    color: #333;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 5px;
+}
+
+.profile-header p {
+    color: #777;
+    margin-bottom: 25px;
+    font-size: 1.1em;
+}
+
+/* Mevcut Durum Kartı */
+/* Profile.css */
+
+
+.current-status-card {
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    margin-bottom: 35px;
+}
+
+.current-status-card h2 {
+    font-size: 1.4em;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.current-plan-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 30px;
+}
+
+.current-plan-level {
+    padding: 15px 25px;
+    border-radius: 8px;
+    text-align: center;
+    flex-shrink: 0;
+    min-width: 150px;
+}
+
+.current-plan-level p {
+    margin: 0;
+    font-size: 0.8em;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.current-plan-level h3 {
+    margin: 5px 0 0 0;
+    font-size: 1.8em;
+}
+
+/* Plan Renkleri (Değişmedi) */
+.level-free { background-color: #f0f0f0; color: #555; border: 1px solid #ddd; }
+.level-basic { background-color: #e3f2fd; color: #1e88e5; }
+.level-pro { background-color: #e8f5e9; color: #43a047; }
+
+
+.current-plan-limits {
+    flex-grow: 1;
+    display: flex;
+    gap: 40px;
+    align-items: center;
+}
+
+.current-plan-limits strong {
+    display: block;
+    color: #666;
+    font-size: 0.9em;
+    margin-bottom: 4px;
+}
+
+.current-plan-limits span {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.current-plan-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.status-message {
+    /* Eski status-message stilleri korunacak */
+    padding: 8px 15px;
+    font-size: 0.9em;
+    border-radius: 6px;
+    border-left: 4px solid;
+}
+
+.btn-sm {
+    padding: 8px 15px;
+    font-size: 0.9em;
+}
+
+
+/* --- PLAN KARTLARI (YENİ STİLLER) --- */
+.upgrade-options {
+    padding: 20px 0;
+}
+
+.upgrade-options h2 {
+    color: #555;
+    margin-bottom: 25px;
+    font-size: 1.4em;
+}
+
+.plan-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+}
+
+.plan-card {
+    background-color: #ffffff;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 25px;
+    text-align: center;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.plan-card.is-current {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px #cce5ff;
+}
+
+.plan-card h3 {
+    color: #333;
+    font-size: 1.6em;
+    margin-top: 0;
+    margin-bottom: 25px;
+}
+
+.limit-detail {
+    margin-bottom: 20px;
+    padding: 10px 0;
+    width: 100%;
+    border-top: 1px dashed #eee;
+}
+
+.limit-detail:last-of-type {
+    border-bottom: 1px dashed #eee;
+    margin-bottom: 30px;
+}
+
+.limit-value {
+    display: block;
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #333;
+}
+
+.limit-label {
+    display: block;
+    font-size: 0.85em;
+    color: #777;
+    margin-top: 3px;
+}
+
+.btn-upgrade {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    width: 100%;
+    margin-top: auto; /* Kartın alt kısmına yaslar */
+}
+
+.btn-upgrade:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+
+
+
+
+
+.delete-account-section {
+    background-color: #ffebeb; /* Çok açık kırmızı arka plan */
+    border: 1px solid #dc3545; /* Kırmızı kenarlık */
+    padding: 25px;
+    border-radius: 10px;
+    margin-top: 40px;
+}
+
+.delete-account-section h2 {
+    color: #dc3545;
+    margin-top: 0;
+    font-size: 1.5em;
+    border-bottom: 1px dashed #f5c6cb;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.delete-account-section p {
+    color: #6c2d35;
+    margin-bottom: 20px;
+    font-size: 0.95em;
+    line-height: 1.5;
+}
+
+.delete-account-section .delete-btn {
+    background-color: #dc3545;
+    color: white;
+    padding: 10px 30px;
+    font-size: 1.1em;
+}
+
+.delete-account-section .delete-btn:hover {
+    background-color: #c82333;
+}

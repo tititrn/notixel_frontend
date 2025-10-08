@@ -1,0 +1,221 @@
+/* Dashboard.css */
+
+.dashboard-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.dashboard-container h2 {
+    color: #333;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.dashboard-message {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+/* --- Tablo Stilleri --- */
+.sync-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.sync-table th, .sync-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.sync-table th {
+    background-color: #f8f8f8;
+    color: #555;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.sync-table tbody tr:hover {
+    background-color: #f1f7ff;
+}
+
+.active-row {
+    background-color: #e9f7e9; /* Hafif yeşil arka plan */
+}
+
+.inactive-row {
+    background-color: #f7e9e9; /* Hafif kırmızımsı arka plan */
+}
+
+/* --- Rozet (Badge) Stilleri --- */
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.status-badge.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.status-badge.inactive {
+    background-color: #f44336;
+    color: white;
+}
+
+/* --- Aksiyon Butonları --- */
+.action-cell {
+    width: 150px;
+    white-space: nowrap;
+}
+
+.action-btn {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    margin-right: 5px;
+    transition: background-color 0.3s;
+}
+
+.action-btn.activate {
+    background-color: #007bff;
+    color: white;
+}
+
+.action-btn.activate:hover {
+    background-color: #0056b3;
+}
+
+.action-btn.deactivate {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.action-btn.deactivate:hover {
+    background-color: #e0a800;
+}
+
+.action-btn.delete {
+    background-color: #dc3545;
+    color: white;
+}
+
+.action-btn.delete:hover {
+    background-color: #bd2130;
+}
+
+/* --- Diğer Butonlar ve Boş Durum --- */
+.secondary-btn {
+    padding: 10px 15px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.secondary-btn:hover {
+    background-color: #5a6268;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 50px 0;
+    border: 1px dashed #ccc;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.refresh-btn {
+    float: right;
+}
+
+/* Dashboard.css - Modal Stilleri */
+
+.modal-overlay {
+    position: fixed; /* 👈 KRİTİK 1: Ekranın sabit bir noktasında kalmalı */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* 👈 KRİTİK 2: Diğer her şeyin üstünde olmalı */
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 700px;
+    width: 90%;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    position: relative; /* 👈 KRİTİK 3: İçeriğin z-index'i etkilenmesin diye */
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-overlay {
+    /* Test için opacity'yi 1 yapın */
+    opacity: 1 !important; 
+    /* Test için display'i flex yapın (Zaten flex olmalı) */
+    display: flex !important; 
+}
+
+
+.modal-content h3 {
+    margin-top: 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.modal-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.modal-table th, .modal-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+.modal-table th {
+    background-color: #f0f0f0;
+}
+
+.close-btn {
+    margin-top: 20px;
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
+/* Satır tıklanabilirliğini belli etmek için stil */
+.config-row {
+    cursor: pointer;
+}
+
+.config-row:hover {
+    filter: brightness(98%);
+}

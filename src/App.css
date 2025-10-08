@@ -1,0 +1,478 @@
+.App { font-family: sans-serif; padding: 20px; max-width: 1000px; margin: auto; }
+h1 { text-align: center; margin-bottom: 20px; }
+.step-container { padding: 20px; border: 1px solid #ccc; border-radius: 10px; margin-bottom: 20px; }
+.primary-btn { background: #4f46e5; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 10px; }
+.primary-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.message { background: #fee2e2; color: #b91c1c; padding: 10px; border-radius: 5px; margin-bottom: 15px; }
+
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.field { display: flex; flex-direction: column; margin-bottom: 15px; }
+
+.toggle-buttons { display: flex; gap: 10px; margin-bottom: 20px; }
+.toggle-buttons button { flex: 1; padding: 8px; border-radius: 5px; border: 1px solid #ccc; cursor: pointer; background: #f0f0f0; }
+.toggle-buttons button.active { background: #4f46e5; color: #fff; border-color: #4f46e5; }
+
+.mapping-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px; }
+.mapping-row { display: contents; }
+.mapping-left { padding: 5px 0; display: flex; align-items: center; }
+.mapping-right select { width: 100%; padding: 5px; }
+
+.unmatched-columns { border-top: 1px dashed #aaa; padding-top: 10px; margin-top: 10px; }
+.checkbox-label { display: flex; align-items: center; gap: 5px; }
+.sync-buttons { display: flex; gap: 20px; margin-top: 15px; justify-content: flex-end; }
+
+
+/* Temel Sıfırlama ve Font */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Genel Kapsayıcı (Merkezleme) */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* --- HEADER / NAVİGASYON STİLLERİ --- */
+.header {
+    background-color: #fff;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 700;
+    color: #007bff; /* Marka renginiz */
+}
+
+.nav a {
+    text-decoration: none;
+    color: #555;
+    margin-left: 25px;
+    font-weight: 500;
+}
+
+.nav a:hover {
+    color: #007bff;
+}
+
+/* --- ORTAK BUTON STİLLERİ --- */
+.btn {
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: 600;
+    transition: background-color 0.3s, opacity 0.3s;
+    display: inline-block; /* CTA butonlarında blok olarak gösterir */
+    text-align: center;
+}
+
+.btn-login {
+    color: #007bff;
+    background-color: transparent;
+    border: none;
+}
+
+.btn-signup, .btn-primary {
+    background-color: #007bff;
+    color: #fff;
+    border: 1px solid #007bff;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.btn-secondary {
+    background-color: #f4f4f4;
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+.btn-secondary:hover {
+    background-color: #ddd;
+}
+
+/* --- HERO BÖLÜMÜ STİLLERİ --- */
+.hero-section {
+    padding: 80px 0;
+    background-color: #f9f9ff; /* Açık arka plan rengi */
+}
+
+.hero-content {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+}
+
+.hero-text {
+    flex: 1;
+}
+
+.hero-text h1 {
+    font-size: 44px;
+    margin-bottom: 20px;
+    line-height: 1.2;
+}
+
+.hero-text p {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.hero-image {
+    flex: 1;
+    text-align: right;
+}
+
+.hero-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.hero-cta {
+    display: flex;
+    gap: 15px;
+}
+
+/* --- FOOTER STİLLERİ --- */
+.footer {
+    background-color: #f4f4f4;
+    padding: 40px 0;
+    border-top: 1px solid #ddd;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap; /* Mobil için alt alta geçmesini sağlar */
+    gap: 30px;
+}
+
+.footer-col {
+    min-width: 150px;
+}
+
+.footer-col h4 {
+    margin-bottom: 15px;
+    font-size: 16px;
+    color: #333;
+}
+
+.footer-col a, .footer-col p {
+    display: block;
+    text-decoration: none;
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+/* --- MOBİL UYUMLULUK (Responsive) --- */
+@media (max-width: 900px) {
+    .hero-content {
+        flex-direction: column; /* Hero içeriğini dikey sırala */
+        text-align: center;
+    }
+    
+    .hero-image {
+        text-align: center;
+        order: -1; /* Görseli metnin üstüne taşır */
+    }
+    
+    .hero-cta {
+        justify-content: center;
+    }
+}
+
+/* App.css dosyanızın herhangi bir yerine ekleyin */
+
+/* Yeni Grid Düzeni */
+.select-step-grid {
+    display: grid;
+    /* 3 kartı yan yana, her kart en az 300px genişlikte olacak şekilde ayarlar */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+/* Kartların Temel Stili */
+.selection-card {
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s;
+}
+
+/* Seçili Kartın Stili */
+.selection-card.is-selected {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px #cce5ff;
+}
+
+.selection-card h3 {
+    font-size: 1.3em;
+    color: #333;
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #eee;
+}
+
+.card-hint {
+    font-size: 0.9em;
+    color: #777;
+    margin-bottom: 20px;
+}
+
+/* Durum mesajları */
+.loading-state {
+    color: #007bff;
+    font-style: italic;
+    padding: 10px 0;
+}
+
+.disabled-state {
+    color: #999;
+    font-style: italic;
+    padding: 10px 0;
+}
+
+/* Notion Kartı için ek stil */
+.selection-card.notion-card {
+    /* İsteğe bağlı olarak Notion renk tonu eklenebilir */
+    /* border-left: 5px solid #000; */ 
+}
+
+
+/* Form alanları için (Mevcut field stiliniz varsa, burası çakışabilir. Kontrol edin.) */
+.field {
+    margin-bottom: 15px;
+}
+
+.field label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #555;
+    font-size: 0.9em;
+}
+
+.field select,
+.field input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box; /* Padding'in genişliğe dahil olmasını sağlar */
+    font-size: 1em;
+    transition: border-color 0.2s;
+}
+
+.field select:focus,
+.field input[type="text"]:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* Butonun olduğu alan */
+.step-actions {
+    text-align: center;
+    padding-top: 20px;
+}
+
+.btn-lg {
+    padding: 12px 25px;
+    font-size: 1.1em;
+}
+
+/* --- ADIM 4: EŞLEŞTİRME (MAPPING) STİLLERİ --- */
+
+/* Global Kontrol Paneli */
+.mapping-control-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding: 15px;
+    background-color: #f7f9fc;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+/* Yön Değiştirme Butonları */
+.btn-toggle {
+    background-color: #fff;
+    color: #007bff;
+    border: 1px solid #007bff;
+    padding: 8px 15px;
+    margin-right: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-toggle:hover {
+    background-color: #f0f8ff;
+}
+
+.btn-toggle.active {
+    background-color: #007bff;
+    color: white;
+    box-shadow: 0 4px 6px rgba(0, 123, 255, 0.2);
+}
+
+.btn-toggle .arrow {
+    font-weight: bold;
+    margin: 0 5px;
+}
+
+/* Otomatik Sync Global Anahtarı */
+.auto-sync-toggle-global {
+    font-weight: 600;
+    color: #333;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.auto-sync-toggle-global input[type="checkbox"] {
+    margin-left: 10px;
+    /* Anahtarı daha görünür yapmak için buraya özel stil eklenebilir */
+    width: 20px;
+    height: 20px;
+}
+
+/* Eşleştirme Listesi Başlığı */
+.mapping-list-header {
+    display: grid;
+    /* 3 sütunlu düzen: Excel/Notion Adı, Eşleşme Alanı, Auto Sync Alanı */
+    grid-template-columns: 2fr 3fr 1fr; 
+    gap: 15px;
+    padding: 10px 15px;
+    background-color: #e9ecef;
+    font-weight: 700;
+    color: #495057;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+/* Eşleştirme Satırı */
+.mapping-list-body {
+    border: 1px solid #dee2e6;
+    border-top: none;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    overflow: hidden; /* Dış çerçeveyi korumak için */
+}
+
+.mapping-row {
+    display: grid;
+    grid-template-columns: 2fr 3fr 1fr;
+    gap: 15px;
+    padding: 15px;
+    align-items: center;
+    border-bottom: 1px solid #f8f9fa;
+    background-color: #ffffff;
+    transition: background-color 0.2s;
+}
+
+.mapping-row:hover {
+    background-color: #f0f8ff;
+}
+
+/* Eşleşme Yapılmış Satır */
+.mapping-row.is-mapped {
+    border-left: 5px solid #28a745;
+}
+
+/* Kritik ID Satırı */
+.mapping-row-critical {
+    background-color: #fff3cd; /* Sarımsı arka plan */
+    border-left: 5px solid #ffc107;
+    font-weight: 600;
+}
+
+.mapping-left {
+    font-weight: 500;
+    color: #212529;
+}
+
+/* Eşleştirme Select Alanı */
+.mapping-right select {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+}
+
+/* Otomatik Sync Alanı */
+.mapping-autosync {
+    text-align: center;
+}
+
+.auto-sync-checkbox-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: normal;
+    font-size: 0.9em;
+}
+
+.auto-sync-checkbox-label input[type="checkbox"] {
+    margin-right: 5px;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.info-text {
+    color: #dc3545;
+    font-size: 0.9em;
+    font-style: italic;
+}
+
+
+/* Notion'da Olmayan Sütunlar Kartı */
+.unmatched-columns-card {
+    background-color: #ffe6e6; /* Hafif kırmızımsı arka plan */
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 25px;
+}
+
+.unmatched-columns-card h3 {
+    color: #721c24;
+    border-bottom: 1px solid #f5c6cb;
+    padding-bottom: 10px;
+    margin-top: 0;
+}
+
+.column-creation-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 15px;
+}
