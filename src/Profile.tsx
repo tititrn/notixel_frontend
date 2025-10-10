@@ -3,6 +3,14 @@ import { format } from 'date-fns';
 import './Profile.css'; // Yeni stil dosyası oluşturmayı unutmayın!
 
 const API_BASE_URL = 'http://127.0.0.1:8000';
+const LEMONSQUEEZY_STORE_URL = 'https://notixel.lemonsqueezy.com';
+
+// 🚨 KRİTİK: Pricing.tsx'teki plan ID'lerini buraya da kopyalayın
+const PLAN_VARIANTS: { [key: string]: { id: number; price: string } } = {
+    basic: { id: 12345, price: "19" }, 
+    pro: { id: 67890, price: "49" },
+    exclusive: { id: 11223, price: "99" },
+};
 
 // API'den gelen verinin yapısı (UserSubscriptionStatus Pydantic modeline karşılık gelir)
 interface SubscriptionStatus {
@@ -18,6 +26,8 @@ const LIMITS: { [key: string]: { syncs: number; interval: number } } = {
     basic: { syncs: 5, interval: 15 },
     pro: { syncs: 20, interval: 5 },
 };
+
+
 
 const Profile: React.FC = () => {
     const userId = localStorage.getItem('user_id');
@@ -53,6 +63,29 @@ const Profile: React.FC = () => {
     useEffect(() => {
         fetchSubscriptionStatus();
     }, []);
+
+
+    const handleUpgrade = (targetLevel: 'basic' | 'pro' | 'exclusive') => {
+    if (!userId) {
+        alert("Lütfen önce giriş yapın.");
+        return;
+    }
+
+    const targetVariant = PLAN_VARIANTS[targetLevel];
+    if (!targetVariant) {
+        alert("Hedef plan bulunamadı.");
+        return;
+    }
+
+    // Ödeme sayfasını aç
+    window.LemonSqueezy.Url.Open(`${LEMONSQUEEZY_STORE_URL}/checkout/buy/variant/${targetVariant.id}`, {
+        embed: 1, 
+        custom: {
+            user_id: userId,
+            action: 'upgrade/downgrade', // Backend'de ekstra takip için
+        },
+    });
+    };
 
     // Abonelik İptal İşlemi
     const handleCancelSubscription = async () => {
@@ -120,32 +153,7 @@ const Profile: React.FC = () => {
         }
     };
 
-    // Abonelik Yükseltme İşlemi (Mock)
-    const handleUpgrade = async (newLevel: string) => {
-        if (!userId) return;
-        
-        if (!window.confirm(`Aboneliğinizi '${newLevel}' seviyesine yükseltmek istediğinizden emin misiniz? (Ödeme simülasyonu)`)) {
-            return;
-        }
-
-        try {
-            // NOTE: Gerçek uygulamada burası ödeme akışına (Stripe/Paddle) yönlendirilir.
-            const response = await fetch(`${API_BASE_URL}/subscription/upgrade/${userId}?new_level=${newLevel}`, {
-                method: 'POST',
-            });
-            
-            if (!response.ok) {
-                throw new Error("Yükseltme işlemi başarısız oldu.");
-            }
-            
-            await fetchSubscriptionStatus();
-            alert(`Aboneliğiniz başarıyla ${newLevel} seviyesine yükseltildi!`);
-            
-        } catch (error) {
-            console.error("Yükseltme hatası:", error);
-            setMessage("Yükseltme işlemi sırasında bir sorun oluştu.");
-        }
-    };
+    
 
 
     if (loading) {
@@ -249,12 +257,12 @@ const Profile: React.FC = () => {
                                     <button className="btn btn-primary" disabled>MEVCUT PLANINIZ</button>
                                 ) : (
                                     <button 
-                                        onClick={() => handleUpgrade(level)}
+                                        onClick={() => handleUpgrade(level as 'basic' | 'pro' | 'exclusive')}
                                         className="btn btn-upgrade"
                                         // 🚨 DÜZELTME: !! ekleyerek boolean tipine çeviriyoruz
-                                        disabled={!!status.subscription_end_date && level !== 'free'} 
+                                        disabled={!!status.subscription_end_date} 
                                     >
-                                        {level === 'free' ? 'Ücretsiz Plana Dön' : 'Şimdi Yükselt'}
+                                        {level === status.subscription_level ? 'Mevcut Planınız' : 'Şimdi Yükselt'}
                                     </button>
                                 )}
                             </div>

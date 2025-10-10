@@ -1,0 +1,139 @@
+
+.pricing-page-container {
+    padding: 60px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.pricing-header {
+    margin-bottom: 50px;
+}
+
+.pricing-header h1 {
+    font-size: 2.5em;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.pricing-header p {
+    font-size: 1.1em;
+    color: #666;
+}
+
+.pricing-cards-section {
+    margin-bottom: 60px;
+}
+
+.pricing-grid {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap; /* Küçük ekranlar için kaydırmayı sağlar */
+}
+
+.pricing-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 30px;
+    width: 100%;
+    max-width: 350px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.pricing-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+}
+
+.pricing-card h2 {
+    font-size: 1.8em;
+    color: #4CAF50; /* Temel yeşil */
+    margin-bottom: 10px;
+}
+
+.pricing-card.pro h2 {
+    color: #007bff; /* Pro için mavi */
+}
+
+.pricing-card.exclusive h2 {
+    color: #ff9800; /* Exclusive için turuncu/sarı */
+}
+
+
+.price {
+    font-size: 3em;
+    font-weight: 700;
+    color: #333;
+    margin: 15px 0 25px 0;
+}
+
+.price span {
+    font-size: 0.5em;
+    font-weight: 400;
+    color: #666;
+    margin-left: 5px;
+}
+
+.feature-list {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 30px;
+    flex-grow: 1; /* Özellik listesinin boşluğu doldurmasını sağlar */
+}
+
+.feature-list li {
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 1em;
+    text-align: left;
+    color: #444;
+}
+
+.feature-list li:last-child {
+    border-bottom: none;
+}
+
+/* CTA Butonu */
+.cta-btn {
+    width: 100%;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    background-color: #4CAF50; /* Varsayılan */
+    color: white;
+}
+
+.cta-btn:hover {
+    background-color: #388E3C;
+}
+
+.pricing-card.pro .cta-btn {
+    background-color: #007bff;
+}
+
+.pricing-card.exclusive .cta-btn {
+    background-color: #ff9800;
+}
+
+
+/* FAQ ve Dipnot */
+.faq-prompt {
+    padding: 30px;
+    background: #f9f9f9;
+    border-radius: 12px;
+}
+
+.faq-prompt h2 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    color: #333;
+}

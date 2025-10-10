@@ -5,7 +5,7 @@ const API_BASE_URL = 'http://127.0.0.1:8000';
 // 🚨 KRİTİK: setStep tipi genişletildi ve userEmail eklendi.
 interface HeaderProps {
     // Tüm navigasyon adımlarını içeriyor
-    setStep: (step: 'home' | 'privacy' | 'terms' | 'connect' | 'dashboard' | 'profile') => void; 
+    setStep: (step: 'home' | 'privacy' | 'terms' | 'connect' | 'dashboard' | 'profile' | 'pricing') => void; 
     userEmail: string | null; // App.tsx'ten gelen kullanıcı e-postası
 }
 
@@ -24,7 +24,7 @@ const HeaderComponent: React.FC<HeaderProps> = ({ setStep, userEmail }) => {
                 <nav className="nav">
                     {/* Ana sayfadaki anchor linklere yönlendirme */}
                     <a href="#features">Features</a>
-                    <a href="#pricing">Pricing</a>
+                    <a href="#pricing" onClick={(e) => { e.preventDefault(); setStep('pricing'); }}>Pricing</a>
                     <a href="#faq">FAQ</a>
 
                     {/* Giriş yapmış kullanıcılar için Dashboard linki */}

@@ -8,10 +8,11 @@ import TermsAndConditions from './TermsAndConditions';
 import HeaderComponent from './HeaderComponent'; 
 import FooterComponent from './FooterComponent'; 
 import Profile from './Profile';
+import Pricing from './Pricing';
 
 // 'home' adımını AppStep türüne ekliyoruz
 // YENİ TİP EKLENTİLERİ: 'privacy' ve 'terms' eklendi
-type AppStep = 'home' | 'connect' | 'notion_connect'| 'select' | 'mapping' | 'complete' | 'dashboard' | 'privacy' | 'terms' | 'profile';
+type AppStep = 'home' | 'connect' | 'notion_connect' | 'select' | 'mapping' | 'complete' | 'dashboard' | 'privacy' | 'terms' | 'profile' | 'pricing';
 type ExcelFile = { id: string; name: string };
 type ExcelColumn = { name: string };
 type NotionProperty = { name: string; type?: string };
@@ -135,9 +136,9 @@ const handleAutoSyncColumnChange = useCallback((columnName: string, isChecked: b
     if (notionAuthSuccess) {
         const currentId = localStorage.getItem('user_id');
         if (currentId) {
-            setStep('select');
+            setStep('pricing');
             fetchExcelFiles(currentId);
-            setMessage('Notion bağlantısı başarılı! Şimdi bir dosya seçin.');
+            setMessage('Notion bağlantısı başarılı! Şimdi bir plan seçin.');
         } else {
             setMessage('Hata: Notion bağlantısı başarılı ancak kullanıcı ID kayıp.');
             setStep('home');
@@ -822,24 +823,22 @@ const startSync = async (
   
 
   const renderConnectStepHomeOrApp = () => {
-      // Yasal sayfalar
-      if (step === 'privacy') {
-        return <PrivacyPolicy />;
-    }
-    if (step === 'terms') {
-        return <TermsAndConditions />;
-    }
-
-    if (step === 'home') {
-        return <Home />;
-    }
       
+
       // Diğer uygulama adımları
       switch (step) {
+          case 'home':
+              return <Home />;
+          case 'privacy':
+              return <PrivacyPolicy />;
+          case 'terms':
+              return <TermsAndConditions />;    
           case 'connect':
               return renderConnectStep();
           case 'notion_connect':
               return renderNotionConnectStep();
+          case 'pricing': 
+              return <Pricing setStep={setStep} />;    
           case 'select':
               return renderSelectStep();
           case 'mapping':
