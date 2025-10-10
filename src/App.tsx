@@ -20,11 +20,24 @@ type ExcelWorksheet = { name: string };
 
 const API_BASE_URL = 'http://127.0.0.1:8000';
 
+
+
+const getInitialStep = (userId: string | null): AppStep => {
+  // 1. URL'deki mevcut hash'i kontrol et
+  const hash = window.location.hash.replace('#', '');
+  if (hash === 'privacy' || hash === 'terms' || hash === 'profile') {
+    return hash as AppStep;
+  }
+  
+  // 2. Hash yoksa, normal başlangıç mantığını uygula
+  return userId ? 'connect' : 'home';
+};
+
 function App() {
   // Başlangıç adımını, localStorage'daki user_id'ye göre belirliyoruz.
   const initialUserId = localStorage.getItem('user_id');
   // ID varsa 'connect' adımında başla, yoksa 'home' (giriş) sayfasında başla.
-  const initialStep: AppStep = initialUserId ? 'connect' : 'home';
+  const initialStep: AppStep = getInitialStep(initialUserId);
   
   const [step, setStep] = useState<AppStep>(initialStep);
   const [userEmail, setUserEmail] = useState<string | null>(localStorage.getItem('user_email'));
@@ -805,6 +818,9 @@ const startSync = async (
     </div>
   );
   
+
+  
+
   const renderConnectStepHomeOrApp = () => {
       // Yasal sayfalar
       if (step === 'privacy') {

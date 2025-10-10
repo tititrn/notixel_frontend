@@ -16,9 +16,9 @@ const FooterComponent: React.FC<FooterProps> = ({ setStep }) => {
                 </div>
                 <div className="footer-col">
                     <h4>Corporate</h4>
-                    {/* setStep ile sayfa içi yönlendirme: Linke tıklandığında URL değişmeden bileşen render edilir */}
-                    <a href="#" onClick={(e) => { e.preventDefault(); setStep('privacy'); }}>Privacy Policy</a>
-                    <a href="#" onClick={(e) => { e.preventDefault(); setStep('terms'); }}>Terms & Conditions</a>
+                    {/* setStep'i çağır, tarayıcının hash'i değiştirmesine izin ver */}
+                    <a href="#privacy" onClick={() => setStep('privacy')}>Privacy Policy</a>
+                    <a href="#terms" onClick={() => setStep('terms')}>Terms & Conditions</a>
                 </div>
                 <div className="footer-col">
                     <h4>Help</h4>

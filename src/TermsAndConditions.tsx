@@ -110,7 +110,7 @@ const TermsAndConditions: React.FC = () => {
             <section className="policy-section">
                 <h2>8. Law and Jurisdiction</h2>
                 <p>
-                    This agreement shall be governed by and interpreted according to the law of **[LÜTFEN KENDİ ÜLKENİZİ SEÇİNİZ: Örneğin, TÜRKİYE veya İRLANDA]** and all disputes arising under the Agreement (including non-contractual disputes or claims) shall be subject to the exclusive jurisdiction of the courts of that country.
+                    This agreement shall be governed by and interpreted according to the law of TÜRKİYE and all disputes arising under the Agreement (including non-contractual disputes or claims) shall be subject to the exclusive jurisdiction of the courts of TÜRKİYE.
                 </p>
             </section>
 
