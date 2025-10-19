@@ -1,63 +1,86 @@
 import React from 'react';
 
-const API_BASE_URL = 'http://127.0.0.1:8000'; 
+const API_BASE_URL = 'https://127.0.0.1:8000'; 
 
-// 🚨 KRİTİK: setStep tipi genişletildi ve userEmail eklendi.
 interface HeaderProps {
-    // Tüm navigasyon adımlarını içeriyor
-    setStep: (step: 'home' | 'privacy' | 'terms' | 'connect' | 'dashboard' | 'profile' | 'pricing') => void; 
-    userEmail: string | null; // App.tsx'ten gelen kullanıcı e-postası
+    setStep: (
+        step:
+            | 'home'
+            | 'privacy'
+            | 'terms'
+            | 'quick_start'
+            | 'connect'
+            | 'dashboard'
+            | 'profile'
+            | 'pricing'
+            | 'select'
+            | 'notion_connect'
+            | 'mapping'
+            | 'complete'
+            | 'features'
+    ) => void;
+    userEmail: string | null;
 }
 
-// 🚨 KRİTİK: userEmail prop'u burada karşılanmalı.
 const HeaderComponent: React.FC<HeaderProps> = ({ setStep, userEmail }) => {
-    
-    // Kullanıcının giriş yapıp yapmadığını kontrol eder
-    const loggedIn = !!userEmail; 
-    
+    const loggedIn = !!userEmail;
+
+    // 🔹 Ortak yönlendirme fonksiyonu
+    const handleNavigate = (e: React.MouseEvent, target: string) => {
+        e.preventDefault();
+        window.location.hash = target; // URL hash güncelle
+        setStep(target as any); // App state güncelle
+    };
+
     return (
         <header className="header">
             <div className="container">
-                {/* Logo: Tıklanınca ana sayfaya yönlendir */}
-                <div className="logo" onClick={() => setStep('home')}>NotiXel</div> 
-                
-                <nav className="nav">
-                    {/* Ana sayfadaki anchor linklere yönlendirme */}
-                    <a href="#features">Features</a>
-                    <a href="#pricing" onClick={(e) => { e.preventDefault(); setStep('pricing'); }}>Pricing</a>
-                    <a href="#faq">FAQ</a>
+                {/* Logo */}
+                <div className="logo" onClick={(e) => handleNavigate(e as any, 'home')}>
+                    NotiXel
+                </div>
 
-                    {/* Giriş yapmış kullanıcılar için Dashboard linki */}
-                    {loggedIn && (
-                        <a href="#" onClick={(e) => { e.preventDefault(); setStep('dashboard'); }}>
-                            Dashboard
-                        </a>
-                    )}
+                <nav className="nav">
+                    <a href="#features" onClick={(e) => { e.preventDefault(); setStep('features'); }}>Features
+                    </a>
+                    <a href="#pricing" onClick={(e) => handleNavigate(e, 'pricing')}>
+                        Pricing
+                    </a>
+                    <a href="#faq" onClick={(e) => handleNavigate(e, 'faq')}>
+                        FAQ
+                    </a>
+                    <a href="#quick_start" onClick={(e) => handleNavigate(e, 'quick_start')}>
+                        Quick Start
+                    </a>
                 </nav>
-                
+
                 <div className="auth-buttons">
-                    {/* --- KULLANICI GİRİŞ YAPMIŞSA (LOGGED IN) --- */}
                     {loggedIn ? (
                         <>
-                            {/* 🚨 PROFİL BUTONU: Tıklanınca Profile sayfasına yönlendirir */}
                             <button
-                                onClick={() => setStep('profile')}
-                                className="btn btn-login"
-                                title="Abonelik ve Profil Yönetimi"
-                                style={{ 
-                                    backgroundColor: '#4CAF50', 
-                                    fontWeight: 'bold',
-                                    cursor: 'pointer' 
-                                }}
+                                onClick={(e) => handleNavigate(e as any, 'dashboard')}
+                                className="btn btn-primary"
+                                style={{ marginRight: '10px' }}
                             >
-                                {userEmail} {/* E-posta adresi buton metni olarak görünür */}
+                                Dashboard
                             </button>
-                            
+                            <button
+                                onClick={(e) => handleNavigate(e as any, 'select')}
+                                className="btn btn-primary"
+                                style={{ marginRight: '10px' }}
+                            >
+                                ➕ New Sync
+                            </button>
+                            <button
+                                onClick={(e) => handleNavigate(e as any, 'profile')}
+                                className="btn btn-secondary"
+                            >
+                                {userEmail}
+                            </button>
                         </>
                     ) : (
-                        /* --- KULLANICI GİRİŞ YAPMAMIŞSA (LOGGED OUT) --- */
-                        <a 
-                            href={`${API_BASE_URL}/connect/microsoft`} 
+                        <a
+                            href={`${API_BASE_URL}/connect/microsoft`}
                             className="btn btn-login"
                         >
                             Log in / Get Started

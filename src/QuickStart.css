@@ -1,0 +1,202 @@
+/* QuickStart.css */
+
+.quickstart-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* 🎯 GÜNCELLENEN KISIM: FAQ.css'teki .faq-header h1 stiliyle eşleşiyor */
+.quickstart-container h1 {
+    font-size: 3em; 
+    color: var(--color-primary-dark, #1f2937);
+    margin-bottom: 10px;
+}
+
+/* 🎯 GÜNCELLENEN KISIM: FAQ.css'teki .faq-header p stiliyle eşleşiyor */
+.quickstart-container p {
+    font-size: 1.25em; /* Daha büyük font */
+    color: #666;      /* Daha açık renk */
+    line-height: 1.6; /* Satır yüksekliğini koru */
+    margin-bottom: 20px; /* H1'den sonraki boşluğu artır */
+}
+
+/* Adım Kartları (Step Cards) */
+.step-card {
+    padding: 30px;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    background-color: #f8faff; 
+    text-align: left;
+    transition: box-shadow 0.3s;
+}
+
+/* Diğer tüm stiller (step-card, dashboard-table vb.) olduğu gibi kalır... */
+
+.step-card:hover {
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.1);
+}
+
+.step-card h2 {
+    font-size: 1.7em;
+    color: #333;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.step-number {
+    background-color: #007bff;
+    color: white;
+    border-radius: 50%;
+    padding: 8px 15px;
+    margin-right: 15px;
+    font-size: 0.8em;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.step-card ul {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 15px;
+}
+
+.step-card ul li {
+    background: #e9f5ff;
+    padding: 10px 15px;
+    border-left: 4px solid #007bff;
+    margin-bottom: 8px;
+    border-radius: 5px;
+    font-size: 0.95em;
+}
+
+/* KRİTİK ID UYARISI */
+.id-warning {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #ffeeba;
+    margin-top: 20px;
+    font-weight: 600;
+}
+
+.id-warning strong {
+    color: #a04000;
+}
+
+/* Dashboard Tablosu Stilleri */
+.dashboard-guide {
+    margin-top: 40px;
+    border-top: 2px solid #eee;
+    padding-top: 30px;
+    text-align: left;
+}
+
+.dashboard-guide h2 {
+    color: #333;
+    font-size: 2em;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.dashboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.dashboard-table th, .dashboard-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.dashboard-table th {
+    background-color: #f0f0f0;
+    color: #333;
+    font-weight: 600;
+}
+
+/* Aksiyon butonları için stil */
+.action-btn-sync {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.action-btn-toggle {
+    color: #ffc107;
+    font-weight: bold;
+}
+
+.action-btn-delete {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* Footer ve CTA */
+.quickstart-footer {
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+    margin-top: 40px;
+    font-size: 0.9em;
+    color: #777;
+}
+
+.btn-start {
+    padding: 12px 30px;
+    font-size: 1.1em;
+    font-weight: 600;
+    margin-top: 20px;
+}
+
+.quickstart-content-wrapper {
+    max-width: 900px; /* İçeriğin genişliğini sınırlıyoruz */
+    margin: 0 auto 50px auto; /* Üstten boşluk ve alttan boşluk */
+    padding: 40px; /* İç boşluk */
+    background-color: #ffffff; /* Beyaz arka plan */
+    border-radius: 12px; /* Köşe yuvarlaklığı */
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08); /* Hafif gölge */
+}
+
+/* Yeni Başlık için ek stil (Eğer ihtiyacınız olursa) */
+.quickstart-header {
+    text-align: center;
+    padding: 0 20px; /* Mobil uyumluluk için kenar boşluğu */
+}
+.quickstart-header h1 {
+    font-size: 2.5em; /* Başlığı daha belirgin yapabiliriz */
+    margin-bottom: 10px;
+}
+
+/* Mobil Uyumlu: Küçük ekranlarda beyaz kapsayıcının kenar boşluğunu azalt */
+@media (max-width: 900px) {
+    .quickstart-content-wrapper {
+        padding: 20px;
+        border-radius: 0; /* Mobil görünümde tam ekran olması için yuvarlak köşeyi kaldırabiliriz */
+        margin: 0 0 50px 0;
+    }
+}
+
+.quickstart-header {
+    text-align: center;
+    margin: 40px 0 20px 0; /* Container ile boşluk */
+}
+
+.quickstart-header h1 {
+    font-size: 3em;
+    color: var(--color-primary-dark, #1f2937);
+    margin-bottom: 10px;
+}
+
+.quickstart-header p {
+    font-size: 1.25em;
+    color: #666;
+    line-height: 1.6;
+}

@@ -1,7 +1,8 @@
 import React from 'react';
+import { ALL_FAQ_ITEMS } from './FAQPage';
 
 // Projenizin backend'inde tanımladığınız Microsoft bağlantı URL'si
-const MICROSOFT_CONNECT_URL = 'http://127.0.0.1:8000/connect/microsoft'; 
+const MICROSOFT_CONNECT_URL = 'https://127.0.0.1:8000/connect/microsoft'; 
 
 // --- GÜNCELLENMİŞ FİYATLANDIRMA VE LİMİTLER ---
 // Kullanıcının istediği 4 plan (Free, Basic, Pro, Exclusive) bu yapıyı kullanır
@@ -56,27 +57,17 @@ const PRICING_LIMITS = [
 // ------------------------------------------
 
 // SSS Listesi
-const FAQ_ITEMS = [
-    {
-        question: 'How secure is my data?',
-        answer: 'Your data is highly secure. We use the official Microsoft Graph API and Notion API for all data transfer. We do not store your actual data (Excel cell contents or Notion page content), only the necessary tokens and synchronization configurations.',
-    },
-    {
-        question: 'Do I need to pay for Notion or Excel?',
-        answer: 'NotiXel is a synchronization tool. You must have active accounts for both Microsoft 365 (to use Excel online with OneDrive) and Notion to use our service.',
-    },
-    {
-        question: 'What happens if I change a column name in Excel?',
-        answer: 'NotiXel uses a unique mapping ID to link your Excel columns and Notion properties. If you change a name, you may need to re-map the column in your NotiXel Dashboard.',
-    },
-    
-];
+const HOME_FAQ_ITEMS = ALL_FAQ_ITEMS.slice(0, 3);
+
+interface HomeProps {
+    setStep: (step: 'connect' | 'dashboard' | 'pricing' | 'faq') => void; // setStep tipine 'faq' ekleyin
+}
 
 /**
  * Ana sayfa içeriğini (global header ve footer hariç) render eden bileşendir.
  * setStep prop'unu alması gereklidir, ancak şimdilik anchor linkler yeterlidir.
  */
-const Home: React.FC = () => {
+const Home: React.FC<HomeProps> = ({ setStep }) => {
     return (
         <div className="home-page-container">
             {/* 2. HERO BÖLÜMÜ */}
@@ -96,7 +87,7 @@ const Home: React.FC = () => {
                     </div>
                     <div className="hero-image">
                         {/* Sync2Sheets'teki gibi bir görseliniz olduğunu varsayıyoruz */}
-                        <img src="/assets/sync-visual.svg" alt="Bi-directional Notion and Excel Synchronization Visual" />
+                        <img src="/assets/sync-visual.png" alt="Bi-directional Notion and Excel Synchronization Visual" />
                     </div>
                 </div>
             </section>
@@ -192,12 +183,25 @@ const Home: React.FC = () => {
                 <div className="container">
                     <h2 className="section-title">Frequently Asked Questions</h2>
                     <div className="faq-list">
-                        {FAQ_ITEMS.map((item, index) => (
+                        {/* Sadece ilk 3 soruyu gösteriyoruz */}
+                        {HOME_FAQ_ITEMS.map((item, index) => (
                             <div key={index} className="faq-item">
                                 <h4 className="faq-question">❓ {item.question}</h4>
                                 <p className="faq-answer">{item.answer}</p>
                             </div>
                         ))}
+                    </div>
+                    
+                    {/* Tüm Sorular sayfasına yönlendirme butonu */}
+                    <div style={{ textAlign: 'center', marginTop: '30px' }}>
+                        {/* 🚨 setStep fonksiyonu burada güvenle kullanılabilir. */}
+                        <a 
+                            href="#faq"
+                            onClick={(e) => { e.preventDefault(); setStep('faq'); }} // setStep doğru kullanılmış
+                            className="btn btn-secondary" 
+                        >
+                            View Frequently Asked Questions →
+                        </a>
                     </div>
                 </div>
             </section>

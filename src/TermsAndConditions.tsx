@@ -14,7 +14,7 @@ const TermsAndConditions: React.FC = () => {
                     If you have any questions about these Terms & Conditions, please contact us at <a href="mailto:support@notixel.com">support@notixel.com</a>.
                 </p>
                 <p>
-                    By accessing or using the NotiXel service ("Service"), you agree to be bound by these Terms and Conditions ("Terms"). If you disagree with any part of the terms, you may not use the Service.
+                    By accessing or using the NotiXel service, you agree to be bound by these Terms and Conditions. If you disagree with any part of the terms, you may not use the Service.
                 </p>
             </section>
 
@@ -39,7 +39,7 @@ const TermsAndConditions: React.FC = () => {
             <section className="policy-section">
                 <h2>2. Privacy and Data Use</h2>
                 <p>
-                    Our <a href="/privacy">Privacy Policy</a> explains how we treat your personal data and protect your privacy when you use our Services. By using our Services, you agree that **NotiXel** can use such data in accordance with our Privacy Policy.
+                    Our <a href="/privacy">Privacy Policy</a> explains how we treat your personal data and protect your privacy when you use our Services. By using our Services, you agree that*NotiXel can use such data in accordance with our Privacy Policy.
                 </p>
                 <h3>Consent to Use of Technical Data</h3>
                 <p>
@@ -50,7 +50,7 @@ const TermsAndConditions: React.FC = () => {
             <section className="policy-section">
                 <h2>3. Subscription, Software, and Updates</h2>
                 <p>
-                    **NotiXel** provides you with a personal, worldwide, royalty-free, non-assignable, and non-exclusive license to use the software provided to you as part of the Services for the sole purpose of enabling you to use and enjoy the benefit of the application.
+                    NotiXel provides you with a personal, worldwide, royalty-free, non-assignable, and non-exclusive license to use the software provided to you as part of the Services for the sole purpose of enabling you to use and enjoy the benefit of the application.
                 </p>
                 <ul>
                     <li>
@@ -63,7 +63,7 @@ const TermsAndConditions: React.FC = () => {
 
                 <h3>Refund Policy</h3>
                 <p>
-                    By placing an order or making a purchase at **NotiXel**, you agree to these terms along with our Privacy Policy. If, for any reason, you are not completely satisfied with the service we provide, contact us. Generally, all fees are non-refundable. We may offer a full refund within the first **7 days** of a new annual subscription at our sole discretion, provided no significant usage has occurred.
+                    By placing an order or making a purchase at NotiXel, you agree to these terms along with our Privacy Policy. If, for any reason, you are not completely satisfied with the service we provide, contact us. Generally, all fees are non-refundable. We may offer a full refund within the first 7 days of a new annual subscription at our sole discretion, provided no significant usage has occurred.
                 </p>
             </section>
             
@@ -73,7 +73,7 @@ const TermsAndConditions: React.FC = () => {
                     We provide our Services using a commercially reasonable level of skill and care and hope you will enjoy using them. But there are certain things that we do not promise about our Services.
                 </p>
                 <p>
-                    Other than as expressly set out in these terms or additional terms, **NotiXel** does not make any specific promises about the Services. For example, we do not make any commitments about their reliability, availability, or ability to meet your specific needs. We provide the Services **“as is”**.
+                    Other than as expressly set out in these terms or additional terms, NotiXel does not make any specific promises about the Services. For example, we do not make any commitments about their reliability, availability, or ability to meet your specific needs. We provide the Services as is.
                 </p>
                 <p>
                     To the extent permitted by law, we exclude all warranties, including the implied warranty of merchantability and fitness for a particular purpose.
@@ -83,17 +83,17 @@ const TermsAndConditions: React.FC = () => {
             <section className="policy-section">
                 <h2>5. Liability for Our Services</h2>
                 <p>
-                    When permitted by law, **NotiXel** will not be responsible for lost profits, revenues, or data, financial losses, or indirect, special, consequential, exemplary, or punitive damages.
+                    When permitted by law, NotiXel will not be responsible for lost profits, revenues, or data, financial losses, or indirect, special, consequential, exemplary, or punitive damages.
                 </p>
                 <p>
-                    To the extent permitted by law, the total liability of **NotiXel** and its suppliers and distributors for any claims under these terms is limited to the amount you paid us to use the Services (or, if we choose, to supplying you with the Services again).
+                    To the extent permitted by law, the total liability of NotiXel and its suppliers and distributors for any claims under these terms is limited to the amount you paid us to use the Services (or, if we choose, to supplying you with the Services again).
                 </p>
             </section>
             
             <section className="policy-section">
                 <h2>6. Business Use and Indemnity</h2>
                 <p>
-                    If you are using our Services on behalf of a business, that business accepts these terms. It will hold harmless and indemnify **NotiXel** and its affiliates, officers, agents, and employees from any claim, action, or proceedings arising from or related to the use of the Services or violation of these terms.
+                    If you are using our Services on behalf of a business, that business accepts these terms. It will hold harmless and indemnify NotiXel and its affiliates, officers, agents, and employees from any claim, action, or proceedings arising from or related to the use of the Services or violation of these terms.
                 </p>
             </section>
 
@@ -103,7 +103,7 @@ const TermsAndConditions: React.FC = () => {
                     We retain your core Sync Configuration Data (mapping settings, Excel IDs, Notion IDs, and tokens) while your account is active to ensure the service functions.
                 </p>
                 <p>
-                    **Deletion:** If you terminate your account, **NotiXel** will retain your Data for a period of **thirty (30) days** (the “Retention Period”) to allow for re-activation. Following the Retention Period, we have the right to delete your Data from our servers in our sole discretion. It is your responsibility to keep copies of your source data (in Notion/Excel). **NotiXel** will not be responsible for any loss of Data after the Retention Period.
+                    Deletion: If you terminate your account, NotiXel will retain your Data for a period of thirty (30) days (the “Retention Period”) to allow for re-activation. Following the Retention Period, we have the right to delete your Data from our servers in our sole discretion. It is your responsibility to keep copies of your source data (in Notion/Excel). NotiXel will not be responsible for any loss of Data after the Retention Period.
                 </p>
             </section>
             

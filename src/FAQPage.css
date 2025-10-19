@@ -1,0 +1,11 @@
+.faq-header h1 {
+    font-size: 3em;
+    color: var(--color-primary-dark, #1f2937);
+    margin-bottom: 10px;
+}
+
+.faq-header p {
+    font-size: 1.25em;
+    color: #666;
+    margin-bottom: 20px;
+}

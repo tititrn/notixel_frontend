@@ -2,7 +2,7 @@ import React from 'react';
 
 interface FooterProps {
     // setStep, yasal sayfalar arası geçiş için gereklidir
-    setStep: (step: 'privacy' | 'terms' | 'home') => void; 
+    setStep: (step: 'privacy' | 'terms' | 'home' | 'faq') => void; 
 }
 
 const FooterComponent: React.FC<FooterProps> = ({ setStep }) => { 
@@ -22,8 +22,8 @@ const FooterComponent: React.FC<FooterProps> = ({ setStep }) => {
                 </div>
                 <div className="footer-col">
                     <h4>Help</h4>
-                    {/* FAQ linki, kullanıcıyı ana sayfaya yönlendirip anchor'a atmasını sağlar */}
-                    <a href="#" onClick={(e) => { e.preventDefault(); setStep('home'); }}>FAQ</a>
+                    {/* FAQ linki, artık doğrudan 'faq' adımına yönlendiriyor */}
+                    <a href="#faq" onClick={(e) => { e.preventDefault(); setStep('faq'); }}>FAQ</a> 
                     <a href="mailto:support@notixel.com">Support</a>
                 </div>
             </div>

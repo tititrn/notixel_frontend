@@ -1,4 +1,5 @@
 import React from 'react';
+import './PrivacyPolicy.css'
 
 const PrivacyPolicy: React.FC = () => {
     return (
@@ -14,7 +15,7 @@ const PrivacyPolicy: React.FC = () => {
                     If you have any questions about this Privacy Policy, please contact us.
                 </p>
                 <p>
-                    We will **never share, rent, or sell your personal data** to others. We do not share your data with AI models or other third-party tools, except as required to perform the synchronization services you explicitly configure. Our commitment is to keep your data safe and confidential. We follow these principles when building NotiXel.
+                    We will never share, rent, or sell your personal data to others. We do not share your data with AI models or other third-party tools, except as required to perform the synchronization services you explicitly configure. Our commitment is to keep your data safe and confidential. We follow these principles when building NotiXel.
                 </p>
                 <p>
                     We only store appropriate data necessary to deliver our services, maintain your account, and to communicate with you.
@@ -34,16 +35,16 @@ const PrivacyPolicy: React.FC = () => {
                         <code>openid profile offline_access User.Read</code>: To read your basic profile and email address (for identification) and maintain access without constant re-login.
                     </li>
                     <li>
-                        <code>Files.ReadWrite.All</code>: This permission is necessary to read data from and write data to the **specific Excel files** on your OneDrive that you explicitly select for synchronization.
+                        <code>Files.ReadWrite.All</code>: This permission is necessary to read data from and write data to the specific Excel files on your OneDrive that you explicitly select for synchronization.
                     </li>
                 </ul>
 
                 <h3>Notion API Integration:</h3>
                 <p>
-                    We request access to your Notion workspace via their OAuth flow. We only interact with the **specific databases** you share with the "NotiXel" integration and store your secure Notion API key to facilitate data exchange.
+                    We request access to your Notion workspace via their OAuth flow. We only interact with the specific databases you share with the NotiXel integration and store your secure Notion API key to facilitate data exchange.
                 </p>
                 <p className="important-note">
-                    **Data Transfer Principle:** The content of your Excel files and Notion pages are **NEVER** transmitted to any third-party service outside of the user's direct control or knowledge (i.e., we only move data between your Microsoft and Notion accounts).
+                    Data Transfer Principle: The content of your Excel files and Notion pages are NEVER transmitted to any third-party service outside of the user's direct control or knowledge (i.e., we only move data between your Microsoft and Notion accounts).
                 </p>
             </section>
             
@@ -79,7 +80,7 @@ const PrivacyPolicy: React.FC = () => {
                         <strong>Account Information:</strong> We track your subscription plan, validity, and usage history (e.g., number of active AutoSync jobs) to enforce the service limits defined in your plan.
                     </li>
                     <li>
-                        <strong>Log/Activity Data:</strong> We collect logs to help us investigate issues, monitor performance, and improve reliability (e.g., time taken for a sync job, successful sync history, errors encountered). We **do not store the content** of the data being synchronized in these logs.
+                        <strong>Log/Activity Data:</strong> We collect logs to help us investigate issues, monitor performance, and improve reliability (e.g., time taken for a sync job, successful sync history, errors encountered). We do NOT store the content of the data being synchronized in these logs.
                     </li>
                 </ul>
             </section>
@@ -114,7 +115,7 @@ const PrivacyPolicy: React.FC = () => {
                 </ul>
                 
                 <p>
-                    **Important Note:** Anyone with whom you share your Excel file or Notion database will be able to see the synchronized data. NotiXel is not responsible for data visibility once it is successfully transferred to your accounts.
+                    Important Note: Anyone with whom you share your Excel file or Notion database will be able to see the synchronized data. NotiXel is not responsible for data visibility once it is successfully transferred to your accounts.
                 </p>
             </section>
 

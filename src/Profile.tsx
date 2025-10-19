@@ -1,269 +1,259 @@
-import React, { useState, useEffect } from 'react';
-import { format } from 'date-fns';
-import './Profile.css'; // Yeni stil dosyası oluşturmayı unutmayın!
+import React, { useState, useEffect, useCallback } from 'react';
+import { format, parseISO } from 'date-fns'; // Tarih formatlama için
+import './Profile.css'; 
+import { tr } from 'date-fns/locale';
 
-const API_BASE_URL = 'http://127.0.0.1:8000';
-const LEMONSQUEEZY_STORE_URL = 'https://notixel.lemonsqueezy.com';
+// Backend ve Lemon Squeezy URL'leri
+const API_BASE_URL = 'https://127.0.0.1:8000';
+// 🚨 KRİTİK: Kendi Lemon Squeezy Store URL'niz
+const LEMONSQUEEZY_STORE_URL = 'https://notixel.lemonsqueezy.com'; 
 
-// 🚨 KRİTİK: Pricing.tsx'teki plan ID'lerini buraya da kopyalayın
-const PLAN_VARIANTS: { [key: string]: { id: number; price: string } } = {
-    basic: { id: 12345, price: "19" }, 
-    pro: { id: 67890, price: "49" },
-    exclusive: { id: 11223, price: "99" },
+// 🚨 KRİTİK: subscription.py ve Pricing.tsx ile EŞLEŞMELİDİR
+const PLAN_VARIANTS: { [key: string]: { id: number; price: string; cta_text: string } } = {
+    basic: { id: 1035879, price: "10", cta_text: "Basic" }, 
+    pro: { id: 1035902, price: "20", cta_text: "Pro" },
+    exclusive: { id: 1035903, price: "50", cta_text: "Exclusive" },
 };
 
 // API'den gelen verinin yapısı (UserSubscriptionStatus Pydantic modeline karşılık gelir)
 interface SubscriptionStatus {
     email: string;
-    subscription_level: string; // 'free', 'basic', 'pro'
+    subscription_level: string; // 'free', 'basic', 'pro', 'exclusive'
     is_subscription_active: boolean; // Ödenen dönem içinde aktif mi?
     subscription_end_date: string | null; // Bitiş tarihi (ISO formatında string)
 }
 
 // Config.py'deki limitleri göstermek için basit bir map
-const LIMITS: { [key: string]: { syncs: number; interval: number } } = {
-    free: { syncs: 2, interval: 10 },
-    basic: { syncs: 5, interval: 15 },
-    pro: { syncs: 20, interval: 5 },
+const LIMITS: { [key: string]: { label: string; syncs: number; interval: number } } = {
+    free: { label: "Free (Varsayılan)", syncs: 0, interval: 60 },
+    basic: { label: "Basic Plan", syncs: 3, interval: 60 },
+    pro: { label: "Pro Plan", syncs: 10, interval: 30 },
+    exclusive: { label: "Exclusive Plan", syncs: 9999, interval: 15 },
 };
 
+interface ProfileProps {
+    setStep: (step: 'home' | 'connect') => void; // Hesap silindikten sonra yönlendirme için
+}
 
-
-const Profile: React.FC = () => {
+const Profile: React.FC<ProfileProps> = ({ setStep }) => {
     const userId = localStorage.getItem('user_id');
     const [status, setStatus] = useState<SubscriptionStatus | null>(null);
     const [message, setMessage] = useState<string | null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [isCancelling, setIsCancelling] = useState<boolean>(false);
-    
-    // API çağrısı için helper
-    const fetchSubscriptionStatus = async () => {
-        if (!userId) {
-            setMessage("Hata: Kullanıcı oturumu bulunamadı.");
-            setLoading(false);
-            return;
-        }
+    const [isLoading, setIsLoading] = useState(true);
 
+    // --- 1. Abonelik Durumunu Çekme ---
+    const fetchSubscriptionStatus = useCallback(async (id: string) => {
         try {
-            const response = await fetch(`${API_BASE_URL}/subscription/status/${userId}`);
+            const response = await fetch(`${API_BASE_URL}/subscription/status/${id}`);
             if (!response.ok) {
                 throw new Error("Abonelik durumu alınamadı.");
             }
             const data: SubscriptionStatus = await response.json();
             setStatus(data);
         } catch (error) {
+            setMessage("Abonelik durumunuz yüklenirken bir sorun oluştu. Lütfen daha sonra tekrar deneyin.");
             console.error(error);
-            setMessage("Abonelik durumu yüklenirken bir sorun oluştu.");
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
-    };
-
-    // İlk yüklemede durumu çek
-    useEffect(() => {
-        fetchSubscriptionStatus();
     }, []);
 
-
-    const handleUpgrade = (targetLevel: 'basic' | 'pro' | 'exclusive') => {
-    if (!userId) {
-        alert("Lütfen önce giriş yapın.");
-        return;
-    }
-
-    const targetVariant = PLAN_VARIANTS[targetLevel];
-    if (!targetVariant) {
-        alert("Hedef plan bulunamadı.");
-        return;
-    }
-
-    // Ödeme sayfasını aç
-    window.LemonSqueezy.Url.Open(`${LEMONSQUEEZY_STORE_URL}/checkout/buy/variant/${targetVariant.id}`, {
-        embed: 1, 
-        custom: {
-            user_id: userId,
-            action: 'upgrade/downgrade', // Backend'de ekstra takip için
-        },
-    });
-    };
-
-    // Abonelik İptal İşlemi
-    const handleCancelSubscription = async () => {
-        if (!userId || isCancelling) return;
-        
-        if (!window.confirm("Aboneliğinizi iptal etmek istediğinizden emin misiniz? Ödenen süre boyunca hizmete devam edebilirsiniz.")) {
-            return;
+    useEffect(() => {
+        if (userId) {
+            fetchSubscriptionStatus(userId);
+        } else {
+            setMessage("Görüntülenecek kullanıcı verisi yok. Lütfen tekrar giriş yapın.");
+            setIsLoading(false);
         }
+    }, [userId, fetchSubscriptionStatus]);
 
-        setIsCancelling(true);
-        try {
-            const response = await fetch(`${API_BASE_URL}/subscription/cancel/${userId}`, {
-                method: 'POST',
-            });
-            
-            if (!response.ok) {
-                throw new Error("İptal işlemi başarısız oldu.");
-            }
-            
-            // Başarılı olursa, durumu yenile ve kullanıcıya mesaj ver
-            await fetchSubscriptionStatus(); 
-            alert("Aboneliğiniz iptal edildi.");
-            
-        } catch (error) {
-            console.error("İptal hatası:", error);
-            setMessage("Abonelik iptal edilirken bir sorun oluştu. Lütfen tekrar deneyin.");
-        } finally {
-            setIsCancelling(false);
-        }
-    };
-    
+
+    // --- 2. Hesap Silme İşlemi ---
     const handleDeleteAccount = async () => {
-        if (!userId) return;
-
-        // Kullanıcıya kritik bir uyarı penceresi gösteriyoruz
-        if (!window.confirm(
-            "KRİTİK UYARI: Hesabınızı kalıcı olarak silmek üzeresiniz.\n" +
-            "Bu işlem Geri Alınamaz. Tüm senkronizasyon ayarlarınız ve verileriniz (abonelik bitiş tarihinden sonraki 30 gün içinde) silinecektir.\n" +
-            "Devam etmek istediğinizden emin misiniz?"
-        )) {
+        if (!userId) {
+            setMessage("Kullanıcı kimliği bulunamadı.");
             return;
         }
 
+        if (!window.confirm("Hesabınızı ve tüm verilerinizi kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.")) {
+            return;
+        }
+
+        setMessage("Hesabınız siliniyor...");
         try {
             const response = await fetch(`${API_BASE_URL}/subscription/delete-account/${userId}`, {
                 method: 'DELETE',
             });
-            
+
             if (!response.ok) {
-                throw new Error("Hesap silme işlemi başarısız oldu.");
+                const errorData = await response.json();
+                throw new Error(errorData.detail || "Hesap silinirken bir hata oluştu.");
             }
+
+            // Başarılı olursa, yerel depolamayı temizle ve ana sayfaya yönlendir
+            localStorage.removeItem('user_id');
+            localStorage.removeItem('excel_file_id');
+            localStorage.removeItem('excel_file_name');
+            localStorage.removeItem('notion_database_id');
+            localStorage.removeItem('notion_db_name');
+            localStorage.removeItem('user_email');
             
-            // Başarılı silme sonrası: Local Storage'ı temizle ve ana sayfaya yönlendir
-            localStorage.clear();
-            alert("Hesabınız başarıyla silindi.Bütün Verileriniz kalıcı olarak silindi. Ana sayfaya yönlendiriliyorsunuz.");
-            
-            // 🚨 NOT: Bu noktada `setStep` prop'u olmadığı için doğrudan sayfa yenileme yapacağız.
-            // setStep'i kullanmak için Profile bileşenine prop olarak iletmeliyiz. 
-            // Şimdilik basitçe yenileme yapalım:
-            window.location.href = '/'; 
-            
+            alert("Hesabınız ve tüm verileriniz silinmiştir. 30 gün sonra verileriniz sunucumuzdan tamamen temizlenecektir.");
+            setStep('home');
+
         } catch (error) {
-            console.error("Hesap silme hatası:", error);
-            setMessage("Hesap silinirken bir sorun oluştu. Lütfen tekrar deneyin.");
+            setMessage(`Hata: ${error instanceof Error ? error.message : "Bilinmeyen bir hata oluştu."}`);
         }
     };
-
     
-
-
-    if (loading) {
-        return <div className="container profile-container"><p>Abonelik durumu yükleniyor...</p></div>;
-    }
-    
-    if (message && !status) {
-        return <div className="container profile-container"><p className="error-message">{message}</p></div>;
+    // Yükleniyor durumu
+    if (isLoading) {
+        return <div className="profile-container">Loading subscription status...</div>;
     }
 
-    if (!status) return null;
+    if (!status) {
+        return <div className="profile-container error-message">Kullanıcı profil bilgileri yüklenemiyor.</div>;
+    }
     
-    // Tarih formatlama (Türkçe ay adlarını kullanmak için date-fns kütüphanesi yüklü olmalıdır)
-    const formattedEndDate = status.subscription_end_date 
-        ? format(new Date(status.subscription_end_date), 'dd MMMM yyyy') 
-        : 'Süresiz';
+    // --- 3. Lemon Squeezy URL'si Oluşturma Fonksiyonu ---
+    const getLemonSqueezyCheckoutUrl = (variantId: number, planLevel: string): string => {
+        // Lemon Squeezy'nin "Upgrade/Downgrade" URL yapısı
+        // 🚨 KRİTİK: user_email'i ileterek, var olan bir abonelik varsa otomatik olarak Yükseltme/Düşürme arayüzüne yönlendirilir.
         
-    const currentLimits = LIMITS[status.subscription_level] || LIMITS.free;
+        // Eğer kullanıcı bir planı zaten iptal etmişse ve end_date bilgisi varsa, 
+        // Lemon Squeezy onu yükseltme/düşürme yerine yeni bir abonelik başlatmaya yönlendirir.
+        
+        const isCurrentPlan = planLevel === status.subscription_level;
+        
+        // Aktif abonelik varsa ve mevcut planı değilse, yükseltme/düşürme akışını başlat (checkout'un üzerine yazma)
+        if (status.is_subscription_active && !isCurrentPlan) {
+            // Örnek: https://notixel.lemonsqueezy.com/billing?email=user@example.com
+            // Bu, kullanıcının mevcut aboneliğini yönettiği sayfaya yönlendirir.
+             return `${LEMONSQUEEZY_STORE_URL}/billing?email=${status.email}`;
+        } 
+        
+        // Aktif abonelik yoksa veya mevcut planı satın almaya çalışıyorsa (yenileme/yeni)
+        // Standart checkout linki: https://notixel.lemonsqueezy.com/checkout/12345?email=user@example.com
+        return `${LEMONSQUEEZY_STORE_URL}/checkout/${variantId}?email=${status.email}`;
+    };
 
-    // Profile.tsx dosyasının içindeki return bloğu
-// Sadece return() kısmı değişecektir. Fonksiyonlar ve State'ler aynı kalır.
-// ...
+
+    // --- 4. Render Edilecek Bileşen ---
+    const activeLevelInfo = LIMITS[status.subscription_level] || LIMITS['free'];
+    const activeLevelLabel = activeLevelInfo.label;
+    
+    const isCancelled = status.subscription_end_date && parseISO(status.subscription_end_date) < new Date();
+    
+    // Eğer iptal edilmişse bile, bitiş tarihine kadar aktif sayılır.
+    let statusText = status.is_subscription_active 
+        ? "Aktif (Ödenmiş Dönem İçinde)" 
+        : "Pasif (Ücretsiz Plana Döndürüldü)";
+
+    if (status.subscription_end_date && status.is_subscription_active) {
+        const endDate = parseISO(status.subscription_end_date);
+        statusText = `Aktif (Sona Erme: ${format(endDate, 'dd MMM yyyy', { locale: tr })})`;
+    } else if (isCancelled) {
+        statusText = "Pasif (Süresi Doldu - Ücretsiz Plan)";
+    }
+    
+    // Yükseltme kartları için listeyi oluştur.
+    // Sadece "free" olmayan planları gösteriyoruz.
+    const upgradePlans = Object.entries(PLAN_VARIANTS)
+        .map(([level, variant]) => ({
+            level,
+            ...variant,
+            ...LIMITS[level]
+        }));
+    
+    // Yükseltme butonunun metnini belirleyen helper
+    const getButtonText = (level: string) => {
+        if (level === status.subscription_level) {
+            return status.is_subscription_active ? 'Mevcut Planınız' : 'Yeniden Abone Ol';
+        }
+        
+        // Aktif bir aboneliği varsa
+        if (status.is_subscription_active) {
+            // Daha düşük bir plana geçiyorsa
+            const isDowngrade = LIMITS[level].syncs < LIMITS[status.subscription_level].syncs;
+            return isDowngrade ? 'Şimdi Düşür' : 'Şimdi Yükselt';
+        }
+        
+        // Aktif aboneliği yoksa, herhangi bir plan için "Abone Ol" butonu görünür.
+        return 'Abone Ol';
+    };
+
 
     return (
-        <div className="container profile-container">
+        <div className="profile-container">
             <header className="profile-header">
-                <h1>{status.email} Profili ve Abonelik Yönetimi</h1>
-                <p>Mevcut planınızı yönetin, limitlerinizi görün ve yükseltme yapın.</p>
+                <h1>Profil ve Abonelik Yönetimi</h1>
+                <p>E-Posta: <strong>{status.email}</strong></p>
             </header>
-
-            {/* --- MEVCUT DURUM KART (CURRENT STATUS) --- */}
+            
+            {/* --- MEVCUT DURUM KARTI --- */}
             <section className="current-status-card">
-                <h2>Mevcut Planınız</h2>
-                
-                <div className="current-plan-summary">
-                    {/* ABONELİK SEVİYESİ */}
-                    <div className={`current-plan-level level-${status.subscription_level}`}>
-                        <p>PLANI</p>
-                        <h3>{status.subscription_level.toUpperCase()}</h3>
+                <h2>Mevcut Abonelik Durumunuz</h2>
+                <div className="status-grid">
+                    <div className="status-item current-plan">
+                        <span className="status-label">Plan Seviyesi</span>
+                        <span className="status-value">{activeLevelLabel}</span>
                     </div>
-
-                    {/* LİMİTLERİN ÖZETİ */}
-                    <div className="current-plan-limits">
-                        <div>
-                            <strong>Max. Otomatik Sync Ayarı:</strong>
-                            <span>{currentLimits.syncs} Konfigürasyon</span>
-                        </div>
-                        <div>
-                            <strong>Min. Senkronizasyon Aralığı:</strong>
-                            <span>Her {currentLimits.interval} Dakika</span>
-                        </div>
+                    <div className={`status-item ${status.is_subscription_active ? 'active-status' : 'inactive-status'}`}>
+                        <span className="status-label">Abonelik Durumu</span>
+                        <span className="status-value">{statusText}</span>
                     </div>
+                </div>
 
-                    {/* BİTİŞ/İPTAL DURUMU VE BUTON */}
-                    <div className="current-plan-actions">
-                         {status.subscription_end_date ? (
-                            <div className="status-message warning">
-                                <strong>İptal Edildi.</strong> {formattedEndDate} tarihine kadar aktif.
-                            </div>
-                        ) : (
-                            <div className="status-message success">
-                                <strong>Aktif.</strong> {status.subscription_level !== 'free' && 'Yükseltme veya İptal yapabilirsiniz.'}
-                            </div>
-                        )}
-                        
-                        {/* Yalnızca ücretli ve iptal edilmemiş planlar için İptal butonu */}
-                        {status.subscription_level !== 'free' && !status.subscription_end_date && (
-                            <button 
-                                onClick={handleCancelSubscription} 
-                                disabled={isCancelling}
-                                className="btn btn-danger btn-sm"
-                            >
-                                {isCancelling ? 'İptal Ediliyor...' : 'Aboneliği İptal Et'}
-                            </button>
-                        )}
+                <div className="current-limits-detail">
+                    <div className="limit-detail">
+                        <span className="limit-value">{activeLevelInfo.syncs === 9999 ? 'Sınırsız' : activeLevelInfo.syncs}</span>
+                        <span className="limit-label">Oto Senkronizasyon İşi</span>
+                    </div>
+                    <div className="limit-detail">
+                        <span className="limit-value">Her {activeLevelInfo.interval} Dakikada Bir</span>
+                        <span className="limit-label">Minimum Senkronizasyon Aralığı</span>
                     </div>
                 </div>
             </section>
             
-            {/* --- PLAN YÜKSELTME/DEĞİŞTİRME SEÇENEKLERİ --- */}
-            <section className="upgrade-options">
-                <h2>Planınızı Yükseltin veya Değiştirin</h2>
-                <div className="plan-cards-container">
-                    {Object.keys(LIMITS).map(level => {
-                        const planLimits = LIMITS[level];
+            {/* --- DİĞER PLANLAR VE YÜKSELTME SEÇENEKLERİ --- */}
+            <section className="upgrade-section">
+                <h2>Planınızı Yönetin</h2>
+                <div className="plan-grid">
+                    {upgradePlans.map((plan) => {
+                        const level = plan.level;
                         const isCurrent = level === status.subscription_level;
+                        const buttonText = getButtonText(level);
+                        const isDisabled = isCurrent && status.is_subscription_active; // Aktif aboneliği varken kendi planının butonu devre dışı
+
+                        // Lemon Squeezy URL'si oluşturma
+                        const checkoutUrl = getLemonSqueezyCheckoutUrl(plan.id, plan.level);
                         
                         return (
-                            <div key={level} className={`plan-card ${isCurrent ? 'is-current' : ''}`}>
-                                <h3>{level.toUpperCase()}</h3>
-                                <div className="limit-detail">
-                                    <span className="limit-value">{planLimits.syncs}</span>
-                                    <span className="limit-label">Sync Ayarı</span>
-                                </div>
-                                <div className="limit-detail">
-                                    <span className="limit-value">{planLimits.interval} Dk</span>
-                                    <span className="limit-label">Min. Aralığı</span>
-                                </div>
-                                
-                                {isCurrent ? (
-                                    <button className="btn btn-primary" disabled>MEVCUT PLANINIZ</button>
-                                ) : (
-                                    <button 
-                                        onClick={() => handleUpgrade(level as 'basic' | 'pro' | 'exclusive')}
-                                        className="btn btn-upgrade"
-                                        // 🚨 DÜZELTME: !! ekleyerek boolean tipine çeviriyoruz
-                                        disabled={!!status.subscription_end_date} 
-                                    >
-                                        {level === status.subscription_level ? 'Mevcut Planınız' : 'Şimdi Yükselt'}
-                                    </button>
+                            <div key={level} className={`plan-card ${isCurrent ? 'current' : ''}`}>
+                                <h3>{plan.label}</h3>
+                                <p className="plan-price">
+                                    ${plan.price} / ay
+                                </p>
+                                <ul className="plan-features">
+                                    <li>{plan.syncs === 9999 ? 'Sınırsız' : plan.syncs} Oto Sync İşi</li>
+                                    <li>Her {plan.interval} dakikada bir senk.</li>
+                                </ul>
+
+                                <a 
+                                    href={checkoutUrl}
+                                    target="_blank" // Yeni sekmede açar
+                                    rel="noopener noreferrer"
+                                    className={`btn btn-upgrade ${isDisabled ? 'disabled-link' : ''}`}
+                                    aria-disabled={isDisabled}
+                                    // Butonun kendisi hala tıklanabilir olduğu için disabled sınıfı ile stil veriyoruz
+                                >
+                                    {buttonText}
+                                </a>
+                                {isCurrent && status.is_subscription_active && (
+                                    <p className="plan-note">
+                                        Planınızı yönetmek (iptal/yükseltme/düşürme) için e-posta adresinizle <a href={`${LEMONSQUEEZY_STORE_URL}/billing?email=${status.email}`} target="_blank" rel="noopener noreferrer">Lemon Squeezy Müşteri Portalına</a> giriş yapın.
+                                    </p>
                                 )}
                             </div>
                         );
@@ -273,7 +263,7 @@ const Profile: React.FC = () => {
 
             {message && <p className="error-message">{message}</p>}
             
-            {/* --- HESAP SİLME BÖLÜMÜ (Önceki Adımda Eklenen) --- */}
+            {/* --- HESAP SİLME BÖLÜMÜ --- */}
             <section className="delete-account-section">
                 <h2>Hesabı Kalıcı Olarak Sil</h2>
                 <p>

@@ -3,48 +3,62 @@
 import React, { useEffect } from 'react';
 import './Pricing.css'; // Stil dosyasının var olduğunu varsayıyoruz
 
-// 🚨 KRİTİK: Bu ID'leri Lemon Squeezy panelinizdeki ilgili "Product Variant" ID'leriyle DEĞİŞTİRMELİSİNİZ.
-const PLAN_VARIANTS = {
-    BASIC: {
-        id: 12345, // REPLACE with actual ID
-        price: "10", // $10
-        name: "Basic",
+// --- GÜNCELLENMİŞ FİYATLANDIRMA VE LİMİTLER ---
+// Bu veri yapısı, Home.tsx'teki PRICING_LIMITS ile uyumludur.
+const PRICING_DATA = [
+    {
+        level: 'Basic',
+        description: 'Ideal for small projects and solo professionals who need reliability.',
+        price: '$10/month',
+        syncs: 3,
+        interval: '1 Hour', 
+        cta: 'Log in to Subscribe',
+        isPrimary: false,
         features: [
-            "Two-way Synchronization (Notion ↔ Excel)", 
-            "3 Auto Sync Jobs (Notion ↔ Excel)", 
-            "Every 1 Hour Sync Interval", 
+            "Two-way Synchronization (Notion ↔ Excel)",
+            "3 Auto Sync Jobs (Notion ↔ Excel)",
+            "Every 1 Hour Sync Interval",
             "Unlimited Manual Syncs",
-            
         ],
+        id: 1035879, // 🚨 REPLACE with actual Lemon Squeezy ID
     },
-    PRO: {
-        id: 67890, // REPLACE with actual ID
-        price: "20", // $20
-        name: "Pro",
+    {
+        level: 'Pro',
+        description: 'Our most popular plan. Perfect for growing teams and serious data workflows.',
+        price: '$20/month',
+        syncs: 10,
+        interval: '30 Minutes',
+        cta: 'Log in to Subscribe',
+        isPrimary: true, // EN ÇOK TAVSİYE EDİLEN PLAN
         features: [
-            "Two-way Synchronization (Notion ↔ Excel)", 
-            "10 Auto Sync Jobs (Notion ↔ Excel)", 
-            "Every 30 Minutes Sync Interval", 
+            "Two-way Synchronization (Notion ↔ Excel)",
+            "10 Auto Sync Jobs (Notion ↔ Excel)",
+            "Every 30 Minutes Sync Interval",
             "Unlimited Manual Syncs",
-            
         ],
+        id: 1035902, // 🚨 REPLACE with actual Lemon Squeezy ID
     },
-    EXCLUSIVE: {
-        id: 11223, // REPLACE with actual ID
-        price: "50", // $50
-        name: "Exclusive",
+    {
+        level: 'Exclusive',
+        description: 'For large organizations and mission-critical, real-time data reporting.',
+        price: '$50/month',
+        syncs: 'Unlimited',
+        interval: '15 Minutes',
+        cta: 'Log in to Subscribe',
+        isPrimary: false,
         features: [
-            "Two-way Synchronization (Notion ↔ Excel)", 
-            "Unlimited Auto Sync Jobs (Notion ↔ Excel)", 
-            "Every 15 Minutes Sync Interval", 
+            "Two-way Synchronization (Notion ↔ Excel)",
+            "Unlimited Auto Sync Jobs (Notion ↔ Excel)",
+            "Every 15 Minutes Sync Interval",
             "Unlimited Manual Syncs",
-    
         ],
+        id: 1035903, // 🚨 REPLACE with actual Lemon Squeezy ID
     },
-};
+];
+// ------------------------------------------
 
 interface PricingProps {
-    setStep: (step: 'select' | 'home' | 'profile' | 'dashboard') => void;
+    setStep: (step: 'select' | 'home' | 'profile' | 'dashboard' | 'privacy' | 'terms') => void;
 }
 
 declare global {
@@ -79,26 +93,51 @@ const Pricing: React.FC<PricingProps> = ({ setStep }) => {
         });
     };
     
-    // If not logged in, the CTA button redirects to Home (Login)
-    const ctaText = userId ? 'Subscribe Now' : 'Log in to Subscribe'; 
-    const ctaAction = (planId: number, planName: string) => userId ? handleCheckout(planId, planName) : setStep('home');
+    // Buton metni ve aksiyonu için helper fonksiyon
+    const getCtaProps = (plan: typeof PRICING_DATA[0]) => {
+        const loggedInCtaText = plan.level === "Exclusive" ? "Go Exclusive" : "Subscribe Now";
+        const ctaText = userId ? loggedInCtaText : 'Log in to Subscribe'; 
+        
+        const action = () => {
+            if (userId) {
+                handleCheckout(plan.id, plan.level);
+            } else {
+                setStep('home');
+            }
+        };
+        return { ctaText, action };
+    };
+
 
     return (
         <div className="pricing-page-container container">
             <header className="pricing-header">
-                <h1>Choose Your NotiXel Synchronization Plan</h1>
-                <p>Select the power you need for seamless, automatic, and reliable data synchronization.</p>
+                <h1>Choose Your Plan</h1>
+                <p>Select the power you need for automatic and reliable data synchronization.</p>
             </header>
 
             <section className="pricing-cards-section">
                 <div className="pricing-grid">
-                    {Object.values(PLAN_VARIANTS).map((plan) => (
-                        <div key={plan.name} className={`pricing-card ${plan.name.toLowerCase()}`}>
-                            <div>
-                                <h2>{plan.name}</h2>
-                                <p className="price">
-                                    ${plan.price}<span>/month</span>
-                                </p>
+                    {PRICING_DATA.map((plan) => {
+                        const { ctaText, action } = getCtaProps(plan);
+
+                        return (
+                            <div key={plan.level} className={`pricing-card ${plan.isPrimary ? 'primary-card' : ''}`}>
+                                {plan.isPrimary && <div className="badge">Most Popular</div>}
+                                
+                                <h3>{plan.level}</h3>
+                                <p className="price-description">{plan.description}</p>
+                                <div className="price-tag">
+                                    <span className="price-amount">{plan.price.split('/')[0]}</span>
+                                    <span className="price-period">/{plan.price.split('/')[1]}</span>
+                                </div>
+                                
+                                <button 
+                                    onClick={action}
+                                    className={`btn ${plan.isPrimary ? 'btn-primary' : 'btn-secondary'} btn-full`}
+                                >
+                                    {ctaText}
+                                </button>
                                 
                                 <ul className="feature-list">
                                     {plan.features.map((feature, index) => (
@@ -106,16 +145,8 @@ const Pricing: React.FC<PricingProps> = ({ setStep }) => {
                                     ))}
                                 </ul>
                             </div>
-                            
-                            <button 
-                                onClick={() => ctaAction(plan.id, plan.name)}
-                                className="btn btn-primary cta-btn"
-                            >
-                                {plan.name === "Pro" ? "Most Popular: " : ""}
-                                {ctaText}
-                            </button>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </section>
             

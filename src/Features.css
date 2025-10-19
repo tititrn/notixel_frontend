@@ -1,0 +1,123 @@
+/* Features.css */
+
+.features-page-container {
+    padding: 60px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.features-header {
+    margin-bottom: 50px;
+}
+
+.features-header h1 {
+    font-size: 3em;
+    color: var(--color-primary-dark, #1f2937);
+    margin-bottom: 10px;
+}
+
+.features-subtitle {
+    font-size: 1.25em;
+    color: var(--color-light-text, #4b5563);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Kategori Başlığı */
+.category-title {
+    font-size: 2em;
+    color: var(--color-secondary, #3b82f6); /* Aksan rengi */
+    border-bottom: 3px solid var(--color-light-bg, #e5e7eb);
+    padding-bottom: 15px;
+    margin-top: 50px;
+    margin-bottom: 40px;
+    display: inline-block;
+}
+
+/* Özellikler Grid'i */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-bottom: 60px;
+    text-align: left;
+}
+
+/* Özellik Kartı */
+.feature-card {
+    background: var(--color-white, #fff);
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid var(--color-light-bg, #e5e7eb);
+    border-left: 5px solid var(--color-secondary);
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.feature-icon {
+    font-size: 2.5em;
+    margin-bottom: 15px;
+}
+
+.feature-card h3 {
+    font-size: 1.4em;
+    color: var(--color-primary-dark, #1f2937);
+    margin-bottom: 10px;
+}
+
+.feature-card p {
+    color: var(--color-text, #374151);
+    line-height: 1.6;
+}
+
+/* CTA Bölümü */
+.features-cta-section {
+    background-color: var(--color-light-bg, #f3f4f6);
+    padding: 60px 20px;
+    border-radius: 12px;
+    margin-top: 50px;
+}
+
+.features-cta-section h2 {
+    font-size: 2em;
+    color: var(--color-primary-dark, #1f2937);
+    margin-bottom: 15px;
+}
+
+.features-cta-section p {
+    font-size: 1.1em;
+    color: var(--color-text, #374151);
+    margin-bottom: 30px;
+}
+
+.cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+/* Mobil Uyumluluk */
+@media (max-width: 768px) {
+    .features-header h1 {
+        font-size: 2.5em;
+    }
+    
+    .category-title {
+        font-size: 1.8em;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .cta-buttons .btn-lg {
+        width: 100%;
+    }
+}

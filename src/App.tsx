@@ -9,24 +9,28 @@ import HeaderComponent from './HeaderComponent';
 import FooterComponent from './FooterComponent'; 
 import Profile from './Profile';
 import Pricing from './Pricing';
+import QuickStart from './QuickStart'
+import FAQPage from './FAQPage';
+import Features from './Features';
 
 // 'home' adımını AppStep türüne ekliyoruz
 // YENİ TİP EKLENTİLERİ: 'privacy' ve 'terms' eklendi
-type AppStep = 'home' | 'connect' | 'notion_connect' | 'select' | 'mapping' | 'complete' | 'dashboard' | 'privacy' | 'terms' | 'profile' | 'pricing';
+type AppStep = 'home' | 'connect' | 'notion_connect' | 'select' | 'mapping' | 'complete' | 'dashboard' | 'privacy' | 'terms' | 'profile' | 'pricing' | 'quick_start' | 'faq' | 'features';
 type ExcelFile = { id: string; name: string };
 type ExcelColumn = { name: string };
 type NotionProperty = { name: string; type?: string };
 type Mapping = { excel_column: string; notion_property: string; data_type: string };
 type ExcelWorksheet = { name: string };
+type NotionDatabase = { id: string; name: string }; 
 
-const API_BASE_URL = 'http://127.0.0.1:8000';
+const API_BASE_URL = 'https://127.0.0.1:8000';
 
 
 
 const getInitialStep = (userId: string | null): AppStep => {
   // 1. URL'deki mevcut hash'i kontrol et
   const hash = window.location.hash.replace('#', '');
-  if (hash === 'privacy' || hash === 'terms' || hash === 'profile') {
+  if (hash === 'privacy' || hash === 'terms' || hash === 'profile' || hash === 'pricing' || hash === 'quick_start' || hash === 'faq') {
     return hash as AppStep;
   }
   
@@ -40,7 +44,7 @@ function App() {
   // ID varsa 'connect' adımında başla, yoksa 'home' (giriş) sayfasında başla.
   const initialStep: AppStep = getInitialStep(initialUserId);
   
-  const [step, setStep] = useState<AppStep>(initialStep);
+  const [step, setStep] = useState<AppStep>(getInitialStep(localStorage.getItem('user_id')));
   const [userEmail, setUserEmail] = useState<string | null>(localStorage.getItem('user_email'));
   const [syncDirection, setSyncDirection] = useState<'excel-to-notion' | 'notion-to-excel'>('excel-to-notion');
   const [autoSyncToggle, setAutoSyncToggle] = useState(false);
@@ -50,7 +54,7 @@ function App() {
   const [selectedExcelId, setSelectedExcelId] = useState<string>('');
   const [excelWorksheets, setExcelWorksheets] = useState<ExcelWorksheet[]>([]); // Yeni
   const [selectedWorksheetName, setSelectedWorksheetName] = useState<string>(''); // Yeni
-  const [notionDbId, setNotionDbId] = useState<string>('');
+  
   const [message, setMessage] = useState<string>('');
   const [userId, setUserId] = useState<string | null>(initialUserId); // initialUserId'yi kullanıyoruz
 
@@ -61,7 +65,13 @@ function App() {
   const [selectedColumnsToCreate, setSelectedColumnsToCreate] = useState<string[]>([]);
   
   const [autoSyncColumns, setAutoSyncColumns] = useState<string[]>([]);
+  const [notionDbId, setNotionDbId] = useState<string | null>(null); 
+  const [notionDatabases, setNotionDatabases] = useState<NotionDatabase[]>([]);
+  const [notionDatabasesLoading, setNotionDatabasesLoading] = useState<boolean>(false);
+  const [notionDatabasesError, setNotionDatabasesError] = useState<string | null>(null);
+  
 
+  const loggedIn = !!userId; // Kullanıcı oturum açmış mı?
 
   const handleMappingChange = useCallback((leftItemName: string, selectedRightItem: string) => {
     // Mevcut mappings'i al
@@ -143,9 +153,10 @@ const handleAutoSyncColumnChange = useCallback((columnName: string, isChecked: b
             setMessage('Hata: Notion bağlantısı başarılı ancak kullanıcı ID kayıp.');
             setStep('home');
         }
-        window.history.replaceState(null, '', window.location.pathname);
+        window.history.replaceState(null, '', window.location.pathname + window.location.hash);
         return;
     }
+   
     
     if (notionAuthError) {
          setMessage(`Notion bağlantı hatası: ${params.get('message') || 'Bilinmeyen hata.'}`);
@@ -156,9 +167,26 @@ const handleAutoSyncColumnChange = useCallback((columnName: string, isChecked: b
 
     // --- 2. Microsoft Callback Handling (Microsoft'tan döndüğünde) ---
     if (authSuccess && receivedUserId) {
-        initializeApp(receivedUserId, true);
-        window.history.replaceState(null, '', window.location.pathname);
-        return;
+    initializeApp(receivedUserId, true);
+
+    // 💡 Kullanıcı bilgilerini backend'den al (örnek endpoint)
+    fetch(`${API_BASE_URL}/get-user?user_id=${receivedUserId}`)
+        .then(async (res) => {
+            if (!res.ok) throw new Error("Kullanıcı bilgisi alınamadı");
+            const data = await res.json();
+
+            // E-posta bilgisi geldiyse kaydet
+            if (data.email) {
+                localStorage.setItem("user_email", data.email);
+                setUserEmail(data.email);
+            } else {
+                console.warn("E-posta bilgisi boş döndü:", data);
+            }
+        })
+        .catch((err) => console.error("Kullanıcı bilgisi alınamadı:", err));
+
+    window.history.replaceState(null, '', window.location.pathname);
+    return;
     }
     
     // --- 3. Persistent Session / Initial Load Handling ---
@@ -237,6 +265,70 @@ const handleAutoSyncColumnChange = useCallback((columnName: string, isChecked: b
     handleAutoSyncColumnChange, // Artık useCallback ile stabil!
     setMessage // 🚨 setMessage bir state setter'dır ve dependency array'e eklenmemelidir.
 ]);
+
+// App.tsx içinde, useState ve diğer useEffect'lerden sonra herhangi bir yere ekleyin:
+useEffect(() => {
+    const handleHashChange = () => {
+        const newHash = window.location.hash.replace('#', '');
+        
+        // Sadece beklenen adımlardan biriyse set et
+        const validSteps = ['home', 'connect', 'notion_connect', 'select', 'mapping', 'complete', 'dashboard', 'privacy', 'terms', 'profile', 'pricing', 'quick_start'];
+        if (validSteps.includes(newHash as AppStep)) {
+            setStep(newHash as AppStep);
+        } else if (newHash === '') {
+            // Hash tamamen temizlenirse (örn: back butonu ile) home'a dön
+            setStep('home');
+        }
+    };
+
+    // Dinleyiciyi ekle
+    window.addEventListener('hashchange', handleHashChange);
+
+    // Temizlik fonksiyonu (componentWillUnmount)
+    return () => {
+        window.removeEventListener('hashchange', handleHashChange);
+    };
+}, [setStep]); // setStep değişmediği için tek sefer çalışır, ama dependency listesine eklenmelidir.
+
+const fetchNotionDatabases = useCallback(async (userId: string) => {
+    setNotionDatabasesLoading(true);
+    setNotionDatabasesError(null);
+    try {
+        // Yeni backend endpoint'ini çağırıyoruz
+        const response = await fetch(`${API_BASE_URL}/get-notion-databases?user_id=${userId}`);
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            // Backend'den gelen hata mesajını kullanıyoruz.
+            const errorMsg = errorData.error || 'Veritabanları yüklenemedi.'; 
+            throw new Error(errorMsg);
+        }
+        
+        const data = await response.json();
+        const databases: NotionDatabase[] = data.databases || [];
+        setNotionDatabases(databases);
+        
+        // Veritabanı varsa ve henüz seçili değilse, ilkini varsayılan olarak seç
+        if (databases.length > 0 && !notionDbId) {
+            setNotionDbId(databases[0].id);
+        }
+        
+    } catch (err) {
+        // Kullanıcıya gösterilecek hata mesajı
+        setNotionDatabasesError(`Notion veritabanları alınamadı. Lütfen Notion entegrasyon ayarlarınızı kontrol edin. Hata: ${err instanceof Error ? err.message : 'Bilinmeyen Hata'}`);
+    } finally {
+        setNotionDatabasesLoading(false);
+    }
+}, [notionDbId]); // Dependency olarak notinDbId ve setNotionDbId'yi (implicit) ekliyoruz.
+
+// 🔑 YENİ: Notion veritabanlarını yüklemek için useEffect
+useEffect(() => {
+    // Adım 'select' olduğunda, kullanıcı ID'si varsa ve veritabanları henüz yüklenmemişse/yükleniyorsa yüklemeyi başlat
+    if (step === 'select' && userId && notionDatabases.length === 0 && !notionDatabasesLoading && !notionDatabasesError) {
+        fetchNotionDatabases(userId);
+    }
+    // NOT: fetchNotionDatabases useCallback içinde olduğu için buraya eklemiyoruz.
+}, [userId, step, notionDatabases.length, notionDatabasesLoading, notionDatabasesError, fetchNotionDatabases]); // fetchNotionDatabases dependency'si eklendi
 
 
   // ... (Tüm fetch ve handler fonksiyonları burada devam eder)
@@ -526,87 +618,190 @@ const startSync = async (
 
   
   const renderSelectStep = () => (
+
       <div className="step-container">
+
           <h2>Adım 3: Dosya Seçimi</h2>
-          <p className="step-description">Lütfen senkronize etmek istediğiniz Excel dosyasını/sayfasını ve Notion Veritabanı ID'sini girin.</p>
+
+          <p className="step-description">Lütfen senkronize etmek istediğiniz Excel dosyasını/sayfasını ve Notion Veritabanını seçin.</p>
+
+
 
           <div className="select-step-grid">
-              {/* 1. EXCEL DOSYA SEÇİM KARTI */}
+
+              {/* 1. EXCEL DOSYA SEÇİM KARTI (DEĞİŞMEDİ) */}
+
               <div className={`selection-card ${selectedExcelId ? 'is-selected' : ''}`}>
+
                   <h3>1. Excel Dosyası</h3>
+
                   <div className="field">
+
                       <label>OneDrive Dosyası Seçin:</label>
+
                       <select 
+
                           value={selectedExcelId} 
+
                           onChange={e => { 
+
                               setSelectedExcelId(e.target.value); 
+
                               if (e.target.value) {
+
                                   // Dosya seçildiğinde sayfaları getir
+
                                   fetchExcelWorksheets(e.target.value, userId!);
+
                                   setSelectedWorksheetName(''); 
+
                               }
+
                           }}
+
                       >
+
                           <option value="">Dosya Seçiniz...</option>
+
                           {excelFiles.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+
                       </select>
+
                   </div>
+
               </div>
+
               
-              {/* 2. EXCEL ÇALIŞMA SAYFASI SEÇİM KARTI */}
+
+              {/* 2. EXCEL ÇALIŞMA SAYFASI SEÇİM KARTI (DEĞİŞMEDİ) */}
+
               <div className={`selection-card ${selectedWorksheetName ? 'is-selected' : ''}`}>
+
                   <h3>2. Çalışma Sayfası</h3>
+
                   <p className="card-hint">Dosyanın hangi sayfasını sync edeceğinizi seçin.</p>
+
                   {selectedExcelId ? (
+
                       excelWorksheets.length > 0 ? (
+
                           <div className="field">
+
                               <label>Sayfa Seçin:</label>
+
                               <select 
+
                                   value={selectedWorksheetName} 
+
                                   onChange={e => { 
+
                                       setSelectedWorksheetName(e.target.value); 
+
                                       // Sayfa seçildiğinde sütunları getir
+
                                       fetchExcelColumns(selectedExcelId, e.target.value);
+
                                   }}
+
                               >
+
                                   <option value="">Sayfa Seçiniz...</option>
+
                                   {excelWorksheets.map(ws => <option key={ws.name} value={ws.name}>{ws.name}</option>)}
+
                               </select>
+
                           </div>
+
                       ) : (
-                          <p className="loading-state">Sayfalar yükleniyor...</p>
+
+                          // Loading state için bir kontrol ekledik, eğer yükleme state'i mevcut değilse bu şekilde kalabilir.
+                          <p className="loading-state">Sayfalar yükleniyor...</p> 
+
                       )
+
                   ) : (
+
                       <p className="disabled-state">Önce Excel dosyasını seçin.</p>
+
                   )}
+
               </div>
 
-              {/* 3. NOTION ID GİRİŞ KARTI */}
+
+
+              {/* 3. NOTION VERİTABANI DROPDOWN KARTI (YENİ) */}
+
               <div className={`selection-card notion-card ${notionDbId ? 'is-selected' : ''}`}>
-                  <h3>3. Notion Veritabanı ID</h3>
-                  <p className="card-hint">Notion veritabanı URL'sinden ID'yi kopyalayıp yapıştırın.</p>
+
+                  <h3>3. Notion Veritabanı</h3>
+
+                  <p className="card-hint">Senkronize edilecek hedef veritabanını seçin.</p>
+
+                  
+                  {/* Hata Mesajı */}
+                  {notionDatabasesError && <p className="message error-message">{notionDatabasesError}</p>}
+
+
                   <div className="field">
-                      <label>Veritabanı ID'si:</label>
-                      <input 
-                          type="text" 
-                          value={notionDbId} 
-                          onChange={e => setNotionDbId(e.target.value)} 
-                          placeholder="Veritabanı ID'sini yapıştırın" 
-                      />
+
+                      <label htmlFor="notion-db-select">Hedef Notion Veritabanı:</label>
+
+                      
+                      {notionDatabasesLoading ? (
+                            <p className="loading-state">Notion veritabanları yükleniyor...</p>
+                        ) : notionDatabases.length > 0 ? (
+                            // KRİTİK DEĞİŞİKLİK: Dropdown Menü
+                            <select
+                                id="notion-db-select"
+                                // notionDbId state'inizin adını kullandık
+                                value={notionDbId || ''} 
+                                onChange={(e) => setNotionDbId(e.target.value)}
+                                className="input-select" 
+                                disabled={notionDatabasesLoading}
+                            >
+                                <option value="" disabled>Bir veritabanı seçin</option>
+                                
+                                {notionDatabases.map(db => (
+                                    <option key={db.id} value={db.id}>
+                                        {db.name} (ID: ...{db.id.slice(-4)})
+                                    </option>
+                                ))}
+                            </select>
+                        ) : (
+                            // Veritabanı bulunamazsa uyarı
+                            !notionDatabasesError && (
+                                <p className="disabled-state">
+                                    NotiXel'in erişebileceği bir veritabanı bulunamadı. Lütfen hedef Notion veritabanınızı **NotiXel entegrasyonu** ile **paylaştığınızdan** emin olun.
+                                </p>
+                            )
+                        )}
                   </div>
               </div>
           </div>
 
-          {/* Aksiyon Butonu */}
+
+
+          {/* Aksiyon Butonu (DEĞİŞMEDİ) */}
+
           <div className="step-actions">
+
               <button 
+
                   className="btn btn-primary btn-lg" 
+
                   onClick={fetchNotionProperties} 
+
                   disabled={!selectedExcelId || !selectedWorksheetName || !notionDbId}>
+
                   Notion Özelliklerini Getir ve Eşleştirmeye Geç
+
               </button>
+
           </div>
+
       </div>
+
   );
 
   
@@ -828,9 +1023,11 @@ const startSync = async (
       // Diğer uygulama adımları
       switch (step) {
           case 'home':
-              return <Home />;
+              return <Home setStep={setStep} />;
           case 'privacy':
               return <PrivacyPolicy />;
+          case 'quick_start': // 👈 YENİ
+              return <QuickStart setStep={setStep} />;     
           case 'terms':
               return <TermsAndConditions />;    
           case 'connect':
@@ -848,7 +1045,13 @@ const startSync = async (
           case 'dashboard':
               return <Dashboard />;
           case 'profile': // YENİ EKLENTİ
-                return <Profile />;    
+                return <Profile setStep={function (step: 'home' | 'connect'): void {
+                    throw new Error('Function not implemented.');
+                } } />;
+          case 'faq':
+                return <FAQPage setStep={setStep as (step: string) => void} />; 
+          case 'features': // <-- YENİ CASE
+                return <Features setStep={setStep} />;      
           default:
               return null;
       }
@@ -857,41 +1060,13 @@ const startSync = async (
 
   return (
     <div className="App">
-        {/* 🚨 KRİTİK EKSİK 2: userEmail prop'u Header'a iletilmeli */}
-        <HeaderComponent 
-            setStep={setStep} 
-            userEmail={userEmail} // <-- Bu satır ekli mi?
-        /> 
+      {/* 🚨 HeaderComponent her zaman görünür, içeriği login durumuna göre değişir */}
+      <HeaderComponent setStep={setStep} userEmail={userEmail} />
 
-        {/* 🚨 UYGULAMA İÇİ BAŞLIK: Yasal veya Ana Sayfa değilse gösterilir */}
-        {step !== 'home' && step !== 'privacy' && step !== 'terms' && (
-            <header className="app-content-header"> 
-                <div className="container" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0'}}>
-                  <h1>NotiXel Synchronization</h1>
-                  {message && <div className="message">{message}</div>}
+      {/* --- ANA BAŞLIK BÖLÜMÜNÜ KALDIRIYORUZ --- */}
+      {/* Ana başlık ve global Sync butonlarını artık HeaderComponent veya Dashboard'da yöneteceğiz */}
+      {/* Aşağıdaki <header> bloğu artık gereksizdir ve kaldırılmalıdır. */}
 
-                  {/* --- YENİ SYNC BUTONLARI --- */}
-                  <div className="action-buttons-group">
-                      {/* Yeni Sync Butonu: Dashboard'da değilsek görünür */}
-                      {step !== 'dashboard' && (
-                          <button onClick={() => setStep('dashboard')} className="secondary-btn" style={{ marginRight: '10px' }}>
-                              Auto Sync Dashboard
-                          </button>
-                      )}
-                      
-                      {/* Dashboard'da veya Complete adımındaysak Yeni Sync butonu görünür */}
-                      {(step === 'dashboard' || step === 'complete') && (
-                          <button onClick={() => setStep('connect')} className="btn btn-primary">
-                              ➕ Yeni Sync Oluştur
-                          </button>
-                      )}
-                      
-                  </div>
-                  {/* --------------------------- */}
-                </div>
-            </header>
-        )}
-        
       <main>
         {/* Adımı render eden fonksiyona yönlendiriyoruz */}
         {renderConnectStepHomeOrApp()}
