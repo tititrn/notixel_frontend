@@ -2,7 +2,7 @@ import React from 'react';
 import { ALL_FAQ_ITEMS } from './FAQPage';
 
 // Projenizin backend'inde tanımladığınız Microsoft bağlantı URL'si
-const MICROSOFT_CONNECT_URL = 'https://127.0.0.1:8000/connect/microsoft'; 
+const MICROSOFT_CONNECT_URL = 'https://notixel-backend.onrender.com/connect/microsoft'; 
 
 // --- GÜNCELLENMİŞ FİYATLANDIRMA VE LİMİTLER ---
 // Kullanıcının istediği 4 plan (Free, Basic, Pro, Exclusive) bu yapıyı kullanır

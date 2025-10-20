@@ -8,7 +8,7 @@ interface QuickStartProps {
     setStep: (step: QuickStartStep) => void;
 }
 
-const API_BASE_URL = 'https://127.0.0.1:8000'; 
+const API_BASE_URL = 'https://notixel-backend.onrender.com'; 
 
 const QuickStart: React.FC<QuickStartProps> = ({ setStep }) => {
     

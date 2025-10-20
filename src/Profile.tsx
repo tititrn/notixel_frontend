@@ -4,7 +4,7 @@ import './Profile.css';
 import { tr } from 'date-fns/locale';
 
 // Backend ve Lemon Squeezy URL'leri
-const API_BASE_URL = 'https://127.0.0.1:8000';
+const API_BASE_URL = 'https://notixel-backend.onrender.com';
 // 🚨 KRİTİK: Kendi Lemon Squeezy Store URL'niz
 const LEMONSQUEEZY_STORE_URL = 'https://notixel.lemonsqueezy.com'; 
 

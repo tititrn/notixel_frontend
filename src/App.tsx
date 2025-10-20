@@ -23,7 +23,7 @@ type Mapping = { excel_column: string; notion_property: string; data_type: strin
 type ExcelWorksheet = { name: string };
 type NotionDatabase = { id: string; name: string }; 
 
-const API_BASE_URL = 'https://127.0.0.1:8000';
+const API_BASE_URL = 'https://notixel-backend.onrender.com';
 
 
 

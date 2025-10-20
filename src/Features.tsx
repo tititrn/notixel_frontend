@@ -87,7 +87,7 @@ const Features: React.FC<FeaturesProps> = ({ setStep }) => {
     }, {} as Record<FeatureItem['category'], FeatureItem[]>);
 
     // You should get the connection URL from Home.tsx/App.tsx. We are using the default.
-    const MICROSOFT_CONNECT_URL = 'http://127.0.0.1:8000/connect/microsoft'; 
+    const MICROSOFT_CONNECT_URL = 'https://notixel-backend.onrender.com/connect/microsoft'; 
 
     return (
         <div className="features-page-container container">

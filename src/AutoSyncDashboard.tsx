@@ -4,7 +4,7 @@ import { formatDistanceToNow, parseISO } from 'date-fns';
 import { tr } from 'date-fns/locale';
 
 
-const API_BASE_URL = 'https://127.0.0.1:8000';
+const API_BASE_URL = 'https://notixel-backend.onrender.com';
 
 
 
