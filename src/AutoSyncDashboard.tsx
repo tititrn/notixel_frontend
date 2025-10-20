@@ -61,7 +61,7 @@ function AutoSyncDashboard() {
         if (userId) {
             fetchConfigs(userId);
         } else {
-            setMessage('Kullanıcı kimliği bulunamadı. Lütfen giriş yapın.');
+            setMessage('User ID not found. Please log in.');
             setLoading(false);
         }
     }, [userId]);
@@ -78,11 +78,11 @@ function AutoSyncDashboard() {
                 setConfigs(data || []); 
                 setMessage('');
             } else {
-                setMessage(`Ayarlar alınamadı: ${(data as any).detail || (data as any).error || 'Bilinmeyen Hata'}`);
+                setMessage(`Settings could not be retrieved: ${(data as any).detail || (data as any).error || 'Unknown Error'}`);
                 setConfigs([]); 
             }
         } catch {
-            setMessage('Ayarları getirirken ağ hatası oluştu.');
+            setMessage('A network error occurred while fetching settings.');
             setConfigs([]);
         } finally {
             setLoading(false);
@@ -110,15 +110,15 @@ function AutoSyncDashboard() {
         return (
             <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
                 <div className="modal-content" onClick={e => e.stopPropagation()}>
-                    <h3>{currentConfigName} Eşleşme Detayları</h3>
+                    <h3>{currentConfigName} Mapping Details</h3>
                     {/* Modal Loading'i kaldırdım, çünkü data ana API'den geldiği için hızlı açılmalı */}
                     {currentMappings.length > 0 ? (
                         <table className="modal-table">
                             <thead>
                                 <tr>
-                                    <th>Excel Sütunu</th>
-                                    <th>Notion Özelliği</th>
-                                    <th>Aksiyonlar</th>
+                                    <th>Excel Columns</th>
+                                    <th>Notion Properties</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -133,7 +133,7 @@ function AutoSyncDashboard() {
                                                     handleRemoveAutoSync(m.id, currentConfigId!); 
                                                 }}
                                                 className="action-btn delete"
-                                                title="Bu eşleşmeyi otomatik senkronizasyondan kaldır"
+                                                title="Remove this match from automatic synchronization"
                                             >
                                                 Kaldır
                                             </button>
@@ -143,9 +143,9 @@ function AutoSyncDashboard() {
                             </tbody>
                         </table>
                     ) : (
-                        <p>Bu işte kayıtlı otomatik senkronizasyon eşleşmesi bulunmamaktadır.</p>
+                        <p>There is no automatic synchronization match registered in this job.</p>
                     )}
-                    <button className="primary-btn close-btn" onClick={() => setIsModalOpen(false)}>Kapat</button>
+                    <button className="primary-btn close-btn" onClick={() => setIsModalOpen(false)}>Close</button>
                 </div>
             </div>
         );
@@ -153,10 +153,10 @@ function AutoSyncDashboard() {
 
     const handleRemoveAutoSync = async (mappingId: number, configId: number) => {
         if (!configId) {
-            setMessage('Hata: Config ID bulunamadı.');
+            setMessage('Error: Config ID not found.');
             return;
         }
-        if (!window.confirm('Bu sütun eşleşmesinin otomatik senkronizasyonunu kalıcı olarak kaldırmak istediğinizden emin misiniz?')) {
+        if (!window.confirm('Are you sure you want to permanently remove the automatic synchronization of this column match?')) {
             return;
         }
 
@@ -175,10 +175,10 @@ function AutoSyncDashboard() {
                 fetchConfigs(userId!); 
 
             } else {
-                setMessage(`Kaldırma işlemi başarısız: ${data.detail || data.error}`);
+                setMessage(`Removal failed: ${data.detail || data.error}`);
             }
         } catch {
-            setMessage('Kaldırma işlemi sırasında ağ hatası oluştu.');
+            setMessage('A network error occurred during the removal process.');
         }
     };
 
@@ -192,18 +192,18 @@ function AutoSyncDashboard() {
             const data = await res.json();
             
             if (res.ok) {
-                setMessage(`Konfigürasyon ID ${configId} için manuel senkronizasyon başlatıldı!`);
+                setMessage(`Manual synchronization started for Configuration ID ${configId}!`);
                 setTimeout(() => fetchConfigs(userId!), 3000); 
             } else {
-                setMessage(`Manuel Sync Başarısız: ${data.detail || data.error}`);
+                setMessage(`Manual Sync Failed: ${data.detail || data.error}`);
             }
         } catch {
-            setMessage('Manuel Sync sırasında ağ hatası oluştu.');
+            setMessage('A network error occurred during Manual Sync.');
         }
     };
 
     const deleteSyncConfig = async (configId: number) => {
-        if (!window.confirm('Bu otomatik senkronizasyon işini silmek istediğinizden emin misiniz?')) {
+        if (!window.confirm('Are you sure you want to delete this automatic synchronization job?')) {
             return;
         }
         
@@ -213,57 +213,57 @@ function AutoSyncDashboard() {
             });
             
             if (res.ok) {
-                setMessage('Senkronizasyon işi başarıyla silindi.');
+                setMessage('Synchronization job deleted successfully.');
                 // State'ten sil
                 setConfigs(prev => prev.filter(c => c.id !== configId));
             } else {
                 const data = await res.json();
-                setMessage(`Silinemedi: ${data.detail || data.error}`);
+                setMessage(`Could not be deleted: ${data.detail || data.error}`);
             }
         } catch {
-            setMessage('Silme işlemi sırasında ağ hatası oluştu.');
+            setMessage('A network error occurred during the deletion process.');
         }
     };
 
     const formatLastSync = (dateString: string | null) => {
-        if (!dateString) return 'Hiç senkronize edilmedi';
+        if (!dateString) return 'Never synchronized';
         try {
             const date = parseISO(dateString);
             // return `${formatDistanceToNow(date, { addSuffix: true, locale: tr })} önce`; // Bu satır 'bir saat önce önce' gibi yanlış çıkabiliyor.
             // Sadece formatDistanceToNow kullanmak yeterli.
             return formatDistanceToNow(date, { addSuffix: true, locale: tr });
         } catch {
-            return 'Geçersiz Tarih';
+            return 'Invalid Date';
         }
     };
     
     // --- Render Metotları ---
     
     if (loading) {
-        return <div className="dashboard-container"><p>Ayarlar yükleniyor...</p></div>;
+        return <div className="dashboard-container"><p>Loading...</p></div>;
     }
 
     return (
         <div className="dashboard-container">
-            <h2>Otomatik Senkronizasyon Dashboard</h2>
+            <h2>Automatic Synchronization Dashboard</h2>
             {message && <div className="dashboard-message">{message}</div>}
 
             {configs.length === 0 ? (
                 <div className="empty-state">
-                    <p>Aktif otomatik senkronizasyon işi bulunmamaktadır.</p>
-                    <button onClick={() => window.history.back()} className="secondary-btn">Yeni Sync Oluştur</button>
+                    <p>There are no active automatic synchronization jobs.</p>
+                    <button onClick={() => window.history.back()} className="secondary-btn">Create New Sync</button>
                 </div>
             ) : (
                 <table className="sync-table">
                     <thead>
                         <tr>
-                            <th>Yön</th>
-                            <th>Kaynak/Hedef</th>
-                            <th>Sıklık</th>
-                            <th>Eşleşme Sayısı</th>
-                            <th>Son Senk.</th>
-                            <th>Durum</th>
-                            <th>Aksiyon</th>
+                            <th>Direction</th>
+                            <th>Source/Target</th>
+                            <th>Frequency</th>
+                            <th>Match Count</th>
+                            <th>Last Sync.</th>
+                            <th>Status</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -290,15 +290,15 @@ function AutoSyncDashboard() {
                                 </td>
 
                                 {/* 🚨 GÜNCELLENDİ: Sıklık */}
-                                <td>Her <strong>{config.interval_minutes}</strong> Dakika</td>
+                                <td>Every <strong>{config.interval_minutes}</strong> Minutes</td>
                                 
                                 {/* 🚨 GÜNCELLENDİ: Eşleşme Sayısı (Tıklanabilir) */}
                                 <td 
                                     className="mapping-count-cell"
                                     onClick={() => openMappingModal(config)}
-                                    title="Eşleşme detaylarını görmek için tıklayın"
+                                    title="Click to see match details"
                                 >
-                                    <strong>{config.mapping_details?.length || 0}</strong> Sütun
+                                    <strong>{config.mapping_details?.length || 0}</strong> Column
                                 </td>
                                 
                                 {/* 🚨 GÜNCELLENDİ: Son Senk. */}
@@ -306,7 +306,7 @@ function AutoSyncDashboard() {
                                 
                                 <td>
                                     <span className={`status-badge ${config.is_active ? 'active' : 'inactive'}`}>
-                                        {config.is_active ? 'AKTİF' : 'DURDURULDU'}
+                                        {config.is_active ? 'ACTIVE' : 'INACTIVE'}
                                     </span>
                                 </td>
                                 
@@ -319,9 +319,9 @@ function AutoSyncDashboard() {
                                         }}
                                         className="action-btn activate"
                                         style={{ marginRight: '5px' }}
-                                        title="Hemen senkronizasyonu başlat"
+                                        title="Sync Now"
                                     >
-                                        Sync Yap
+                                        Sync Now
                                     </button>
                                     
                                     {/* Sil Butonu */}
@@ -331,9 +331,9 @@ function AutoSyncDashboard() {
                                             deleteSyncConfig(config.id);
                                         }}
                                         className="action-btn delete"
-                                        title="Sil"
+                                        title="Delete"
                                     >
-                                        Sil
+                                        Delete
                                     </button>
                                 </td>
                             </tr>
@@ -344,7 +344,7 @@ function AutoSyncDashboard() {
             
             {/* Yenile butonu */}
             <button onClick={() => fetchConfigs(userId!)} className="secondary-btn refresh-btn">
-                Listeyi Yenile
+                Refresh
             </button>
             {renderMappingModal()} 
         </div>

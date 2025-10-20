@@ -134,11 +134,11 @@ const handleAutoSyncColumnChange = useCallback((columnName: string, isChecked: b
 
         if (!hasNotionKey) {
             setStep('notion_connect');
-            if (isNewLogin) setMessage('Microsoft bağlantısı başarılı. Şimdi Notion hesabınızı bağlayın.');
+            if (isNewLogin) setMessage('Microsoft connection successful. Now connect your Notion account.');
         } else {
             setStep('select');
             fetchExcelFiles(id);
-            if (isNewLogin) setMessage('Bağlantılar tamam! Excel dosyanızı seçin.');
+            if (isNewLogin) setMessage('Connections complete! Select your Excel file.');
         }
     };
     
@@ -148,9 +148,9 @@ const handleAutoSyncColumnChange = useCallback((columnName: string, isChecked: b
         if (currentId) {
             setStep('pricing');
             fetchExcelFiles(currentId);
-            setMessage('Notion bağlantısı başarılı! Şimdi bir plan seçin.');
+            setMessage('Notion connection successful! Now select a plan.');
         } else {
-            setMessage('Hata: Notion bağlantısı başarılı ancak kullanıcı ID kayıp.');
+            setMessage('Error: Notion connection successful but user ID is missing.');
             setStep('home');
         }
         window.history.replaceState(null, '', window.location.pathname + window.location.hash);
@@ -159,7 +159,7 @@ const handleAutoSyncColumnChange = useCallback((columnName: string, isChecked: b
    
     
     if (notionAuthError) {
-         setMessage(`Notion bağlantı hatası: ${params.get('message') || 'Bilinmeyen hata.'}`);
+         setMessage(`Notion connection error: ${params.get('message') || 'Unknown error.'}`);
          setStep('notion_connect'); 
          window.history.replaceState(null, '', window.location.pathname);
          return;
@@ -172,7 +172,7 @@ const handleAutoSyncColumnChange = useCallback((columnName: string, isChecked: b
     // 💡 Kullanıcı bilgilerini backend'den al (örnek endpoint)
     fetch(`${API_BASE_URL}/get-user?user_id=${receivedUserId}`)
         .then(async (res) => {
-            if (!res.ok) throw new Error("Kullanıcı bilgisi alınamadı");
+            if (!res.ok) throw new Error("User information could not be retrieved.");
             const data = await res.json();
 
             // E-posta bilgisi geldiyse kaydet
@@ -180,10 +180,10 @@ const handleAutoSyncColumnChange = useCallback((columnName: string, isChecked: b
                 localStorage.setItem("user_email", data.email);
                 setUserEmail(data.email);
             } else {
-                console.warn("E-posta bilgisi boş döndü:", data);
+                console.warn("Email information returned empty:", data);
             }
         })
-        .catch((err) => console.error("Kullanıcı bilgisi alınamadı:", err));
+        .catch((err) => console.error("User information could not be retrieved:", err));
 
     window.history.replaceState(null, '', window.location.pathname);
     return;
@@ -233,7 +233,7 @@ const handleAutoSyncColumnChange = useCallback((columnName: string, isChecked: b
             // Hem sol hem sağ tarafta "ID" sütunu varsa, otomatik eşleştirmeyi yap
             if (leftItem && autoMapTarget) {
                 handleMappingChange(leftItem.name, autoMapTarget.name);
-                setMessage('ID sütunu otomatik olarak eşleştirildi.');
+                setMessage('ID column matched automatically.');
             }
         }
     }
@@ -300,7 +300,7 @@ const fetchNotionDatabases = useCallback(async (userId: string) => {
         if (!response.ok) {
             const errorData = await response.json();
             // Backend'den gelen hata mesajını kullanıyoruz.
-            const errorMsg = errorData.error || 'Veritabanları yüklenemedi.'; 
+            const errorMsg = errorData.error || 'Databases could not be loaded.'; 
             throw new Error(errorMsg);
         }
         
@@ -315,7 +315,7 @@ const fetchNotionDatabases = useCallback(async (userId: string) => {
         
     } catch (err) {
         // Kullanıcıya gösterilecek hata mesajı
-        setNotionDatabasesError(`Notion veritabanları alınamadı. Lütfen Notion entegrasyon ayarlarınızı kontrol edin. Hata: ${err instanceof Error ? err.message : 'Bilinmeyen Hata'}`);
+        setNotionDatabasesError(`Notion databases could not be retrieved. Please check your Notion integration settings. Error: ${err instanceof Error ? err.message : 'Unknown Error'}`);
     } finally {
         setNotionDatabasesLoading(false);
     }
@@ -353,9 +353,9 @@ useEffect(() => {
              setExcelColumns([]);
         }
 
-      } else setMessage(`Excel sayfaları alınamadı: ${data.error}`);
+      } else setMessage(`Excel sheets could not be retrieved: ${data.error}`);
     } catch {
-      setMessage('Excel sayfaları alınırken ağ hatası oluştu.');
+      setMessage('A network error occurred while retrieving Excel sheets.');
     }
   };
 
@@ -376,7 +376,7 @@ useEffect(() => {
         }
         return false;
     } catch {
-        setMessage('Bağlantı kontrolü sırasında ağ hatası oluştu.');
+        setMessage('A network error occurred during the connection check.');
         return false;
     }
   };
@@ -386,9 +386,9 @@ useEffect(() => {
       const res = await fetch(`${API_BASE_URL}/get-excel-files?user_id=${currentUserId}`);
       const data = await res.json();
       if (res.ok) setExcelFiles(data.files);
-      else setMessage(`Excel dosyaları alınamadı: ${data.error}`);
+      else setMessage(`Excel files could not be retrieved: ${data.error}`);
     } catch {
-      setMessage('Excel dosyaları alınırken ağ hatası oluştu.');
+      setMessage('A network error occurred while retrieving Excel files.');
     }
   };
 
@@ -401,7 +401,7 @@ useEffect(() => {
         const columns = data.columns.map((name: string) => ({ name }));
         const hasId = columns.some((c: ExcelColumn) => c.name.toLowerCase() === 'id');
         if (!hasId) {
-          setMessage('"ID" sütunu bulunmuyor, başka dosya seçin.');
+          setMessage('The "ID" column is not found, select another file.');
           setExcelColumns([]);
           setExcelToNotionMappings([]);
           return;
@@ -412,15 +412,15 @@ useEffect(() => {
           notion_property: '',
           data_type: ''
         })));
-      } else setMessage(`Excel sütunları alınamadı: ${data.error}`);
+      } else setMessage(`Excel columns could not be retrieved: ${data.error}`);
     } catch {
-      setMessage('Excel sütunları alınırken ağ hatası oluştu.');
+      setMessage('A network error occurred while retrieving Excel columns.');
     }
   };
 
   const fetchNotionProperties = async () => {
     if (!notionDbId) {
-      setMessage('Lütfen Notion Veritabanı ID\'si girin.');
+      setMessage('Please select a Notion Database.');
       return;
     }
     try {
@@ -443,9 +443,9 @@ useEffect(() => {
         })));
 
         setStep('mapping');
-      } else setMessage(`Notion özellikleri alınamadı: ${data.error}`);
+      } else setMessage(`Notion properties could not be retrieved: ${data.error}`);
     } catch {
-      setMessage('Notion özelliklerini alırken ağ hatası oluştu.');
+      setMessage('A network error occurred while retrieving Notion properties.');
     }
   };
 
@@ -464,14 +464,14 @@ useEffect(() => {
   
 
 const saveMappings = async () => {
-    if (!userId) { setMessage('Kullanıcı kimliği bulunamadı.'); return; }
+    if (!userId) { setMessage('User ID not found.'); return; }
 
     const mappings = syncDirection === 'excel-to-notion' ? excelToNotionMappings : notionToExcelMappings;
     const validMappings = mappings.filter(m =>
         syncDirection === 'excel-to-notion' ? m.notion_property.trim() !== '' : m.excel_column.trim() !== ''
     );
     
-    if (validMappings.length === 0) { setMessage("En az bir sütunu eşleştirin."); return; }
+    if (validMappings.length === 0) { setMessage("Select at least one column."); return; }
     
     const idMappingExists = validMappings.some(m => 
         (syncDirection === 'excel-to-notion' && m.excel_column.toLowerCase() === 'id') ||
@@ -479,7 +479,7 @@ const saveMappings = async () => {
     );
     
     if (!idMappingExists) {
-        setMessage("Senkronizasyon için 'ID' sütununun eşleştirilmesi zorunludur.");
+        setMessage("Matching the 'ID' column is mandatory for synchronization.");
         return;
     }
 
@@ -495,14 +495,14 @@ const saveMappings = async () => {
         if (res.ok) {
             const allSavedMappings: { id: number, excel_column: string, notion_property: string }[] = data.saved_mappings || []; 
             
-            setMessage("Eşleşmeler başarıyla kaydedildi. Senkronizasyon başlatılıyor...");
+            setMessage("Matches saved successfully. Starting synchronization...");
             startSync(syncDirection, allSavedMappings); 
         } else {
             const err = data;
-            setMessage(`Eşleşmeler kaydedilemedi: ${err.error || err.detail}`);
+            setMessage(`Matches could not be saved: ${err.error || err.detail}`);
         }
     } catch {
-        setMessage('Eşleşmeleri kaydederken ağ hatası oluştu.');
+        setMessage('A network error occurred while saving the matches.');
     }
 };
 
@@ -512,11 +512,11 @@ const startSync = async (
     allSavedMappings: { id: number, excel_column: string, notion_property: string }[] 
   ) => {
     if (!userId) {
-        setMessage('Kullanıcı kimliği bulunamadı.');
+        setMessage('User ID not found.');
         return;
     }
 
-    let successMessage = 'Senkronizasyon başarıyla tamamlandı.';
+    let successMessage = 'Synchronization completed successfully.';
 
     const cleanAutoSyncColumnsSet = new Set(
         autoSyncColumns.map(name => name.toLowerCase().trim())
@@ -560,7 +560,7 @@ const startSync = async (
 
         if (!res.ok) {
             const err = await res.json();
-            throw new Error(`Manuel Senkronizasyon başarısız: ${err.detail || err.error}`);
+            throw new Error(`Manual Synchronization failed: ${err.detail || err.error}`);
         }
 
         // 2. OTOMATİK SYNC KONFİGÜRASYONUNU OLUŞTUR
@@ -574,16 +574,16 @@ const startSync = async (
             const autoSyncData = await autoSyncRes.json();
 
             if (!autoSyncRes.ok) {
-                successMessage += ` Ancak Otomatik Sync yapılandırılamadı: ${autoSyncData.detail || 'Bilinmeyen Hata'}`;
+                successMessage += ` However, Automatic Sync could not be configured.: ${autoSyncData.detail || 'Unknown Error'}`;
             } else {
-                successMessage = `Manuel senkronizasyon tamamlandı ve Otomatik Sync yapılandırıldı. (${autoSyncData.message})`;
+                successMessage = `Manual synchronization is complete and Automatic Sync is configured. (${autoSyncData.message})`;
             }
         }
 
         setStep('complete');
         setMessage(successMessage);
     } catch (e: any) {
-        setMessage(`Senkronizasyon İşlemi Sırasında Hata: ${e.message || e.toString()}`);
+        setMessage(`Error During Synchronization Process: ${e.message || e.toString()}`);
     }
 };
 
@@ -594,9 +594,9 @@ const startSync = async (
 
   const renderConnectStep = () => (
     <div className="step-container">
-        <h2>Adım 1: Microsoft Hesabını Bağla</h2>
-        <p>Devam etmek için OneDrive/Excel hesabınıza erişim izni vermelisiniz.</p>
-        <button className="primary-btn" onClick={handleMicrosoftConnect}>Microsoft Hesabını Bağla</button>
+        <h2>Connect Microsoft Account</h2>
+        <p>You must grant permission to access your OneDrive/Excel account to continue.</p>
+        <button className="primary-btn" onClick={handleMicrosoftConnect}>Connect Microsoft Account</button>
     </div>
   );
 
@@ -608,10 +608,10 @@ const startSync = async (
 
   const renderNotionConnectStep = () => (
       <div className="step-container">
-          <h2>Adım 2: Notion Hesabını Bağla</h2>
-          <p>Senkronizasyonun çalışması için Notion API anahtarınızı bağlamanız gerekiyor. Lütfen tüm veritabanlarınız için izin verdiğinizden emin olun.</p>
+          <h2>Connect Notion Account</h2>
+          <p>Synchronization requires you to connect your Notion API key. Please ensure you have granted permission for your correct databases.</p>
           <button className="primary-btn" onClick={handleNotionConnect} disabled={!userId}>
-              Notion Hesabını Bağla
+              Connect Notion Account
           </button>
       </div>
   );
@@ -621,9 +621,9 @@ const startSync = async (
 
       <div className="step-container">
 
-          <h2>Adım 3: Dosya Seçimi</h2>
+          <h2>File Selection</h2>
 
-          <p className="step-description">Lütfen senkronize etmek istediğiniz Excel dosyasını/sayfasını ve Notion Veritabanını seçin.</p>
+          <p className="step-description">Please select the Excel file/sheet and Notion Database you wish to synchronize.</p>
 
 
 
@@ -633,11 +633,11 @@ const startSync = async (
 
               <div className={`selection-card ${selectedExcelId ? 'is-selected' : ''}`}>
 
-                  <h3>1. Excel Dosyası</h3>
+                  <h3>Excel File</h3>
 
                   <div className="field">
 
-                      <label>OneDrive Dosyası Seçin:</label>
+                      <label>Excel File:</label>
 
                       <select 
 
@@ -661,7 +661,7 @@ const startSync = async (
 
                       >
 
-                          <option value="">Dosya Seçiniz...</option>
+                          <option value="">Select File...</option>
 
                           {excelFiles.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
 
@@ -677,9 +677,9 @@ const startSync = async (
 
               <div className={`selection-card ${selectedWorksheetName ? 'is-selected' : ''}`}>
 
-                  <h3>2. Çalışma Sayfası</h3>
+                  <h3>Excel Sheet</h3>
 
-                  <p className="card-hint">Dosyanın hangi sayfasını sync edeceğinizi seçin.</p>
+                  <p className="card-hint">Select which Sheet you want to sync.</p>
 
                   {selectedExcelId ? (
 
@@ -687,7 +687,7 @@ const startSync = async (
 
                           <div className="field">
 
-                              <label>Sayfa Seçin:</label>
+                              <label>Select Sheet</label>
 
                               <select 
 
@@ -705,7 +705,7 @@ const startSync = async (
 
                               >
 
-                                  <option value="">Sayfa Seçiniz...</option>
+                                  <option value="">Select Sheet...</option>
 
                                   {excelWorksheets.map(ws => <option key={ws.name} value={ws.name}>{ws.name}</option>)}
 
@@ -716,13 +716,13 @@ const startSync = async (
                       ) : (
 
                           // Loading state için bir kontrol ekledik, eğer yükleme state'i mevcut değilse bu şekilde kalabilir.
-                          <p className="loading-state">Sayfalar yükleniyor...</p> 
+                          <p className="loading-state">Sheets are loading...</p> 
 
                       )
 
                   ) : (
 
-                      <p className="disabled-state">Önce Excel dosyasını seçin.</p>
+                      <p className="disabled-state">Select the Excel file first.</p>
 
                   )}
 
@@ -734,9 +734,9 @@ const startSync = async (
 
               <div className={`selection-card notion-card ${notionDbId ? 'is-selected' : ''}`}>
 
-                  <h3>3. Notion Veritabanı</h3>
+                  <h3>Notion Database</h3>
 
-                  <p className="card-hint">Senkronize edilecek hedef veritabanını seçin.</p>
+                  <p className="card-hint">Select the database for synchronization.</p>
 
                   
                   {/* Hata Mesajı */}
@@ -745,11 +745,11 @@ const startSync = async (
 
                   <div className="field">
 
-                      <label htmlFor="notion-db-select">Hedef Notion Veritabanı:</label>
+                      <label htmlFor="notion-db-select">Notion Database:</label>
 
                       
                       {notionDatabasesLoading ? (
-                            <p className="loading-state">Notion veritabanları yükleniyor...</p>
+                            <p className="loading-state">Notion databases are loading...</p>
                         ) : notionDatabases.length > 0 ? (
                             // KRİTİK DEĞİŞİKLİK: Dropdown Menü
                             <select
@@ -760,7 +760,7 @@ const startSync = async (
                                 className="input-select" 
                                 disabled={notionDatabasesLoading}
                             >
-                                <option value="" disabled>Bir veritabanı seçin</option>
+                                <option value="" disabled>Select a database</option>
                                 
                                 {notionDatabases.map(db => (
                                     <option key={db.id} value={db.id}>
@@ -772,7 +772,7 @@ const startSync = async (
                             // Veritabanı bulunamazsa uyarı
                             !notionDatabasesError && (
                                 <p className="disabled-state">
-                                    NotiXel'in erişebileceği bir veritabanı bulunamadı. Lütfen hedef Notion veritabanınızı **NotiXel entegrasyonu** ile **paylaştığınızdan** emin olun.
+                                    No database accessible by NotiXel was found. Please make sure you have given permission in your Notion database with the NotiXel integration.
                                 </p>
                             )
                         )}
@@ -794,7 +794,7 @@ const startSync = async (
 
                   disabled={!selectedExcelId || !selectedWorksheetName || !notionDbId}>
 
-                  Notion Özelliklerini Getir ve Eşleştirmeye Geç
+                  Proceed to Mapping
 
               </button>
 
@@ -821,9 +821,9 @@ const startSync = async (
       if (!idMappingItem) {
           return (
               <div className="step-container">
-                  <h2 style={{color: 'red'}}>HATA!</h2>
-                  <p>Senkronizasyonun çalışması için Excel dosyasında bir "ID" sütunu zorunludur. Lütfen dosyanızı kontrol edin veya yeni bir dosya seçin.</p>
-                  <button className="secondary-btn" onClick={() => setStep('select')}>Geri Git</button>
+                  <h2 style={{color: 'red'}}>ERROR!</h2>
+                  <p>An "ID" column in the Excel file is mandatory for synchronization to work. Please check your file or select a new one.</p>
+                  <button className="secondary-btn" onClick={() => setStep('select')}>Go Back</button>
               </div>
           );
       }
@@ -843,7 +843,7 @@ const startSync = async (
 
       return (
           <div className="step-container">
-              <h2>Adım 4: Sütunları Eşleştirin</h2>
+              <h2>Match Collumns</h2>
 
               {/* YÖN VE GLOBAL AYARLAR */}
               <div className="mapping-control-panel">
@@ -863,7 +863,7 @@ const startSync = async (
                   </div>
 
                   <label className="auto-sync-toggle-global">
-                      Otomatik Sync'i Aç
+                      Activate Automatic Sync
                       <input
                           type="checkbox"
                           checked={autoSyncToggle}
@@ -875,19 +875,19 @@ const startSync = async (
               {/* YÖN VE GLOBAL AYARLAR SONU */}
               
               <p className="step-description">
-                  Senkronize etmek istediğiniz her bir sütunu karşı taraftaki uygun sütunla eşleştirin.
+                  Match each column you want to synchronize with the corresponding column on the other side.
               </p>
 
               <div className="mapping-list-header">
                   <div className="mapping-list-left-title">{syncDirection === 'excel-to-notion' ? 'EXCEL SÜTUNLARI' : 'NOTION ÖZELLİKLERİ'}</div>
-                  <div className="mapping-list-right-title">EŞLEŞTİRİLEN SÜTUN / ÖZELLİK</div>
-                  <div className="mapping-list-autosync-title">OTOMATİK SYNC</div>
+                  <div className="mapping-list-right-title">MATCHED COLUMNS / PROPERTIES</div>
+                  <div className="mapping-list-autosync-title">AUTOMATIC SYNC</div>
               </div>
 
               <div className="mapping-list-body">
                   {/* 1. KRİTİK ID SÜTUNU (Zorunlu ve Sabit) */}
                   <div className="mapping-row mapping-row-critical">
-                      <div className="mapping-left">ID (Kritik Eşleşme)</div>
+                      <div className="mapping-left">ID (Critical Match)</div>
                       <div className="mapping-right">
                           <select
                               value={idSelectedRight || ''}
@@ -895,7 +895,7 @@ const startSync = async (
                               // ID eşleşmesi her zaman olmalı
                               style={{ backgroundColor: idSelectedRight ? '#e6fff0' : '#ffe6e6' }}
                           >
-                              <option value="">Seçiniz...</option>
+                              <option value="">Choose...</option>
                               {rightItems.map(p => (
                                   <option key={p.name} value={p.name}>
                                       {p.name}
@@ -906,17 +906,17 @@ const startSync = async (
                                   </option>
                               ))}
                           </select>
-                          {!idSelectedRight && <p className="info-text" style={{margin: '5px 0 0 0', textAlign: 'left', color: '#dc3545'}}>KRİTİK: ID sütununu eşleştirmelisiniz.</p>}
+                          {!idSelectedRight && <p className="info-text" style={{margin: '5px 0 0 0', textAlign: 'left', color: '#dc3545'}}>CRITICAL: You must match the ID column.</p>}
                       </div>
                       {/* 🚨 GÜNCELLENMİŞ ID AUTOSYNC KISMI: Global toggle'a bağlı */}
                       <div className="mapping-autosync">
                           {/* ID seçiliyse ve global sync açıksa: Otomatik açık */}
                           {isIDAutoSynced ? (
-                              <span style={{ color: '#28a745', fontWeight: 'bold' }}>Açık (Zorunlu)</span>
+                              <span style={{ color: '#28a745', fontWeight: 'bold' }}>On (Mandatory)</span>
                           ) : (
                               // Global Sync kapalıysa veya ID seçili değilse: Uyarı
                               <span className="info-text">
-                                  {autoSyncToggle ? 'Eşleştirme bekleniyor' : 'Global Kapalı'}
+                                  {autoSyncToggle ? 'Waiting for mapping' : 'Global Closed'}
                               </span>
                           )}
                       </div>
@@ -945,7 +945,7 @@ const startSync = async (
                                       value={selectedRight || ''}
                                       onChange={e => handleMappingChange(leftName, e.target.value)}
                                   >
-                                      <option value="">Eşleştirme Yapma</option>
+                                      <option value="">Do Not Map</option>
                                       {rightItems.map(p => (
                                           <option key={p.name} value={p.name}>
                                               {syncDirection === 'excel-to-notion' && 'type' in p && p.type
@@ -974,8 +974,8 @@ const startSync = async (
               {/* 3. NOTION'DA OLMAYAN SÜTUNLARI OLUŞTURMA */}
               {syncDirection === 'excel-to-notion' && unmatchedColumns.length > 0 && (
                   <div className="unmatched-columns-card">
-                      <h3>Notion'da Olmayan Excel Sütunları</h3>
-                      <p>Bu sütunları, Notion'da yeni <strong>Zengin Metin (Rich Text)</strong> özelliği olarak eklemek için işaretleyin:</p>
+                      <h3>Excel Columns Not In Notion</h3>
+                      <p>Mark these columns to add them as new <strong> Rich Text </strong> properties in Notion:</p>
                       <div className="column-creation-options">
                           {unmatchedColumns.map(c => (
                               <label key={c} className="checkbox-label">
@@ -998,7 +998,7 @@ const startSync = async (
                       onClick={saveMappings}
                       disabled={!idSelectedRight}
                   >
-                      Senkronizasyonu Başlat
+                      Start Synchronization
                   </button>
               </div>
           </div>
@@ -1007,10 +1007,10 @@ const startSync = async (
 
   const renderCompleteStep = () => (
     <div className="step-container">
-      <h2>Senkr. Tamamlandı!</h2>
+      <h2>Sync Complete!</h2>
       <p>{message}</p>
-      <button className="primary-btn" onClick={() => setStep('select')}>Yeni Senkronizasyon</button>
-      <button className="secondary-btn" onClick={() => setStep('dashboard')} style={{marginLeft: '10px'}}>Dashboard'a Git</button>
+      <button className="primary-btn" onClick={() => setStep('select')}>New Synchronization</button>
+      <button className="secondary-btn" onClick={() => setStep('dashboard')} style={{marginLeft: '10px'}}>Go to Dashboard</button>
     </div>
   );
   

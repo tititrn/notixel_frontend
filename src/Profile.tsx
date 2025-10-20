@@ -46,12 +46,12 @@ const Profile: React.FC<ProfileProps> = ({ setStep }) => {
         try {
             const response = await fetch(`${API_BASE_URL}/subscription/status/${id}`);
             if (!response.ok) {
-                throw new Error("Abonelik durumu alınamadı.");
+                throw new Error("Subscription status could not be retrieved.");
             }
             const data: SubscriptionStatus = await response.json();
             setStatus(data);
         } catch (error) {
-            setMessage("Abonelik durumunuz yüklenirken bir sorun oluştu. Lütfen daha sonra tekrar deneyin.");
+            setMessage("There was a problem loading your subscription status. Please try again later.");
             console.error(error);
         } finally {
             setIsLoading(false);
@@ -62,7 +62,7 @@ const Profile: React.FC<ProfileProps> = ({ setStep }) => {
         if (userId) {
             fetchSubscriptionStatus(userId);
         } else {
-            setMessage("Görüntülenecek kullanıcı verisi yok. Lütfen tekrar giriş yapın.");
+            setMessage("No user data to display. Please log in again.");
             setIsLoading(false);
         }
     }, [userId, fetchSubscriptionStatus]);
@@ -71,15 +71,15 @@ const Profile: React.FC<ProfileProps> = ({ setStep }) => {
     // --- 2. Hesap Silme İşlemi ---
     const handleDeleteAccount = async () => {
         if (!userId) {
-            setMessage("Kullanıcı kimliği bulunamadı.");
+            setMessage("User ID not found.");
             return;
         }
 
-        if (!window.confirm("Hesabınızı ve tüm verilerinizi kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.")) {
+        if (!window.confirm("Are you sure you want to permanently delete your account and all your data? This action is irreversible.")) {
             return;
         }
 
-        setMessage("Hesabınız siliniyor...");
+        setMessage("Your account is being deleted...");
         try {
             const response = await fetch(`${API_BASE_URL}/subscription/delete-account/${userId}`, {
                 method: 'DELETE',
@@ -87,7 +87,7 @@ const Profile: React.FC<ProfileProps> = ({ setStep }) => {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.detail || "Hesap silinirken bir hata oluştu.");
+                throw new Error(errorData.detail || "An error occurred while deleting the account.");
             }
 
             // Başarılı olursa, yerel depolamayı temizle ve ana sayfaya yönlendir
@@ -98,11 +98,11 @@ const Profile: React.FC<ProfileProps> = ({ setStep }) => {
             localStorage.removeItem('notion_db_name');
             localStorage.removeItem('user_email');
             
-            alert("Hesabınız ve tüm verileriniz silinmiştir. 30 gün sonra verileriniz sunucumuzdan tamamen temizlenecektir.");
+            alert("Your account and all your data have been deleted. Your data will be completely cleared from our server after the period specified in the Terms and Conditions.");
             setStep('home');
 
         } catch (error) {
-            setMessage(`Hata: ${error instanceof Error ? error.message : "Bilinmeyen bir hata oluştu."}`);
+            setMessage(`Error: ${error instanceof Error ? error.message : "Unknown Error"}`);
         }
     };
     
@@ -112,7 +112,7 @@ const Profile: React.FC<ProfileProps> = ({ setStep }) => {
     }
 
     if (!status) {
-        return <div className="profile-container error-message">Kullanıcı profil bilgileri yüklenemiyor.</div>;
+        return <div className="profile-container error-message">User profile information cannot be loaded.</div>;
     }
     
     // --- 3. Lemon Squeezy URL'si Oluşturma Fonksiyonu ---
@@ -146,14 +146,14 @@ const Profile: React.FC<ProfileProps> = ({ setStep }) => {
     
     // Eğer iptal edilmişse bile, bitiş tarihine kadar aktif sayılır.
     let statusText = status.is_subscription_active 
-        ? "Aktif (Ödenmiş Dönem İçinde)" 
-        : "Pasif (Ücretsiz Plana Döndürüldü)";
+        ? "Active (Within Paid Period)" 
+        : "Pasive";
 
     if (status.subscription_end_date && status.is_subscription_active) {
         const endDate = parseISO(status.subscription_end_date);
-        statusText = `Aktif (Sona Erme: ${format(endDate, 'dd MMM yyyy', { locale: tr })})`;
+        statusText = `Active (Ends in: ${format(endDate, 'dd MMM yyyy', { locale: tr })})`;
     } else if (isCancelled) {
-        statusText = "Pasif (Süresi Doldu - Ücretsiz Plan)";
+        statusText = "Pasive ";
     }
     
     // Yükseltme kartları için listeyi oluştur.
@@ -168,57 +168,57 @@ const Profile: React.FC<ProfileProps> = ({ setStep }) => {
     // Yükseltme butonunun metnini belirleyen helper
     const getButtonText = (level: string) => {
         if (level === status.subscription_level) {
-            return status.is_subscription_active ? 'Mevcut Planınız' : 'Yeniden Abone Ol';
+            return status.is_subscription_active ? 'Your Current Plan' : 'Re-subscribe';
         }
         
         // Aktif bir aboneliği varsa
         if (status.is_subscription_active) {
             // Daha düşük bir plana geçiyorsa
             const isDowngrade = LIMITS[level].syncs < LIMITS[status.subscription_level].syncs;
-            return isDowngrade ? 'Şimdi Düşür' : 'Şimdi Yükselt';
+            return isDowngrade ? 'Downgrade Now' : 'Upgrade Now';
         }
         
         // Aktif aboneliği yoksa, herhangi bir plan için "Abone Ol" butonu görünür.
-        return 'Abone Ol';
+        return 'Subscribe';
     };
 
 
     return (
         <div className="profile-container">
             <header className="profile-header">
-                <h1>Profil ve Abonelik Yönetimi</h1>
-                <p>E-Posta: <strong>{status.email}</strong></p>
+                <h1>Profile and Subscription Management</h1>
+                <p>E-Mail: <strong>{status.email}</strong></p>
             </header>
             
             {/* --- MEVCUT DURUM KARTI --- */}
             <section className="current-status-card">
-                <h2>Mevcut Abonelik Durumunuz</h2>
+                <h2>Current Subscription Status</h2>
                 <div className="status-grid">
                     <div className="status-item current-plan">
-                        <span className="status-label">Plan Seviyesi</span>
+                        <span className="status-label">Plan </span>
                         <span className="status-value">{activeLevelLabel}</span>
                     </div>
                     <div className={`status-item ${status.is_subscription_active ? 'active-status' : 'inactive-status'}`}>
-                        <span className="status-label">Abonelik Durumu</span>
+                        <span className="status-label">Subscription Status</span>
                         <span className="status-value">{statusText}</span>
                     </div>
                 </div>
 
                 <div className="current-limits-detail">
                     <div className="limit-detail">
-                        <span className="limit-value">{activeLevelInfo.syncs === 9999 ? 'Sınırsız' : activeLevelInfo.syncs}</span>
-                        <span className="limit-label">Oto Senkronizasyon İşi</span>
+                        <span className="limit-value">{activeLevelInfo.syncs === 9999 ? 'Unlimited' : activeLevelInfo.syncs}</span>
+                        <span className="limit-label">Auto Synchronization Job</span>
                     </div>
                     <div className="limit-detail">
-                        <span className="limit-value">Her {activeLevelInfo.interval} Dakikada Bir</span>
-                        <span className="limit-label">Minimum Senkronizasyon Aralığı</span>
+                        <span className="limit-value">Every {activeLevelInfo.interval} minutes</span>
+                        <span className="limit-label">Synchronization Interval</span>
                     </div>
                 </div>
             </section>
             
             {/* --- DİĞER PLANLAR VE YÜKSELTME SEÇENEKLERİ --- */}
             <section className="upgrade-section">
-                <h2>Planınızı Yönetin</h2>
+                <h2>Manage Plan</h2>
                 <div className="plan-grid">
                     {upgradePlans.map((plan) => {
                         const level = plan.level;
@@ -236,8 +236,8 @@ const Profile: React.FC<ProfileProps> = ({ setStep }) => {
                                     ${plan.price} / ay
                                 </p>
                                 <ul className="plan-features">
-                                    <li>{plan.syncs === 9999 ? 'Sınırsız' : plan.syncs} Oto Sync İşi</li>
-                                    <li>Her {plan.interval} dakikada bir senk.</li>
+                                    <li>{plan.syncs === 9999 ? 'Unlimited' : plan.syncs} Auto Synchronization Job</li>
+                                    <li>Every {plan.interval} minutes</li>
                                 </ul>
 
                                 <a 
@@ -252,7 +252,7 @@ const Profile: React.FC<ProfileProps> = ({ setStep }) => {
                                 </a>
                                 {isCurrent && status.is_subscription_active && (
                                     <p className="plan-note">
-                                        Planınızı yönetmek (iptal/yükseltme/düşürme) için e-posta adresinizle <a href={`${LEMONSQUEEZY_STORE_URL}/billing?email=${status.email}`} target="_blank" rel="noopener noreferrer">Lemon Squeezy Müşteri Portalına</a> giriş yapın.
+                                        To manage your plan (cancel/upgrade/downgrade), log in to the <a href={`${LEMONSQUEEZY_STORE_URL}/billing?email=${status.email}`} target="_blank" rel="noopener noreferrer">Lemon Squeezy Customer Portal</a> with your email address.
                                     </p>
                                 )}
                             </div>
@@ -265,15 +265,15 @@ const Profile: React.FC<ProfileProps> = ({ setStep }) => {
             
             {/* --- HESAP SİLME BÖLÜMÜ --- */}
             <section className="delete-account-section">
-                <h2>Hesabı Kalıcı Olarak Sil</h2>
+                <h2>Permanently Delete Account</h2>
                 <p>
-                    **DİKKAT!** Bu işlem geri alınamaz. Hesabınızı sildiğinizde, tüm senkronizasyon ayarlarınız, kayıtlı Excel ve Notion bağlantılarınız **kalıcı olarak silinecektir**. Verileriniz, **Şartlar ve Koşullarımızda** belirtilen 30 günlük saklama süresini takiben sunucularımızdan temizlenecektir.
+                    ATTENTION! This action is irreversible. When you delete your account, all your synchronization settings, saved Excel and Notion connections will be permanently deleted. Your data will be cleared from our servers following the period specified in our Terms and Conditions.
                 </p>
                 <button 
                     onClick={handleDeleteAccount} 
                     className="btn btn-danger delete-btn"
                 >
-                    Hesabımı Sil
+                    Delete Account
                 </button>
             </section>
         </div>
