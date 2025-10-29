@@ -28,14 +28,34 @@ const API_BASE_URL = 'https://notixel-backend.onrender.com';
 
 
 const getInitialStep = (userId: string | null): AppStep => {
-  // 1. URL'deki mevcut hash'i kontrol et
-  const hash = window.location.hash.replace('#', '');
-  if (hash === 'privacy' || hash === 'terms' || hash === 'profile' || hash === 'pricing' || hash === 'quick_start' || hash === 'faq') {
-    return hash as AppStep;
-  }
+  // 1. URL'deki mevcut hash'i al (örn: #privacy)
+  const hash = window.location.hash.slice(1); // '#' işaretini kaldır
+
+  // 2. Hash'i kontrol et ve geçerli bir adım olup olmadığını belirle
+  const validHashSteps: AppStep[] = [
+    'privacy', 
+    'terms', 
+    'faq', 
+    'features', 
+    'pricing', 
+    'quick_start', 
+    'dashboard', 
+    'profile', 
+    'select'
+  ];
   
-  // 2. Hash yoksa, normal başlangıç mantığını uygula
-  return userId ? 'connect' : 'home';
+  if (validHashSteps.includes(hash as AppStep)) {
+      return hash as AppStep; // Eğer hash geçerli bir adımsa, o adımı döndür
+  }
+
+  // 3. Geçerli hash yoksa, login durumuna göre adımı belirle
+  if (userId) {
+      // Login olmuşsa, otomatik olarak Dashboard'a yönlendir
+      return 'dashboard';
+  }
+
+  // 4. Varsayılan olarak Home sayfasını döndür
+  return 'home';
 };
 
 function App() {
