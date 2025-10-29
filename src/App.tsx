@@ -27,36 +27,22 @@ const API_BASE_URL = 'https://notixel-backend.onrender.com';
 
 
 
+
+
+
 const getInitialStep = (userId: string | null): AppStep => {
-  // 1. URL'deki mevcut hash'i al (örn: #privacy)
-  const hash = window.location.hash.slice(1); // '#' işaretini kaldır
-
-  // 2. Hash'i kontrol et ve geçerli bir adım olup olmadığını belirle
-  const validHashSteps: AppStep[] = [
-    'privacy', 
-    'terms', 
-    'faq', 
-    'features', 
-    'pricing', 
-    'quick_start', 
-    'dashboard', 
-    'profile', 
-    'select'
-  ];
+  // 1. URL'deki mevcut hash'i...
+  const hash = window.location.hash.replace('#', '');
+  if (hash && (hash === 'privacy' || hash === 'terms' || hash === 'faq' || hash === 'pricing' || hash === 'quick_start' || hash === 'features')) {
+      return hash as AppStep; // Eğer hash varsa ve eşleşiyorsa, o adımı döndür
+  }
   
-  if (validHashSteps.includes(hash as AppStep)) {
-      return hash as AppStep; // Eğer hash geçerli bir adımsa, o adımı döndür
-  }
-
-  // 3. Geçerli hash yoksa, login durumuna göre adımı belirle
-  if (userId) {
-      // Login olmuşsa, otomatik olarak Dashboard'a yönlendir
-      return 'dashboard';
-  }
-
-  // 4. Varsayılan olarak Home sayfasını döndür
+  // ... (Geri kalan giriş kontrolü)
+  // Varsayılan olarak 'home' döndürür
   return 'home';
-};
+}
+
+
 
 function App() {
   // Başlangıç adımını, localStorage'daki user_id'ye göre belirliyoruz.
@@ -124,6 +110,30 @@ function App() {
     }
 
 }, [syncDirection, excelToNotionMappings, notionToExcelMappings, autoSyncColumns, setExcelToNotionMappings, setNotionToExcelMappings, setAutoSyncColumns]);
+
+
+useEffect(() => {
+    const handleHashChange = () => {
+        // Hash'i alıp başındaki '#' işaretini kaldır
+        const newHash = window.location.hash.replace('#', '');
+        
+        // AppStep tipindeki tüm geçerli adımları kontrol et
+        if (newHash && (newHash === 'privacy' || newHash === 'terms' || newHash === 'faq' || newHash === 'pricing' || newHash === 'quick_start' || newHash === 'features' || newHash === 'home' || newHash === 'connect' || newHash === 'dashboard' || newHash === 'profile')) {
+            setStep(newHash as AppStep);
+        } else if (!newHash) {
+            // Eğer hash boşaltılırsa, ana sayfaya dön
+            setStep('home');
+        }
+    };
+
+    // Dinleyiciyi kaydet
+    window.addEventListener('hashchange', handleHashChange);
+    
+    // Temizleme fonksiyonu: Bileşen kaldırıldığında dinleyiciyi kaldır
+    return () => {
+        window.removeEventListener('hashchange', handleHashChange);
+    };
+}, [setStep]); // setStep değiştiğinde yeniden bağlanmalı
 
 
 // 2. Auto Sync Sütun Seçimini Yöneten Fonksiyon
@@ -220,8 +230,14 @@ const handleAutoSyncColumnChange = useCallback((columnName: string, isChecked: b
     // --- 4. Default: Show Home Page ---
     // Eğer hiçbir şey tetiklenmediyse ve ID yoksa, Home'u göster.
     if (!storedUserId) {
+    const hash = window.location.hash.replace('#', '');
+    if (hash && ['privacy','terms','faq','pricing','quick_start','features'].includes(hash)) {
+        setStep(hash as AppStep);
+    } else {
         setStep('home');
     }
+    }
+
     
   }, []); 
 
@@ -286,29 +302,6 @@ const handleAutoSyncColumnChange = useCallback((columnName: string, isChecked: b
     setMessage // 🚨 setMessage bir state setter'dır ve dependency array'e eklenmemelidir.
 ]);
 
-// App.tsx içinde, useState ve diğer useEffect'lerden sonra herhangi bir yere ekleyin:
-useEffect(() => {
-    const handleHashChange = () => {
-        const newHash = window.location.hash.replace('#', '');
-        
-        // Sadece beklenen adımlardan biriyse set et
-        const validSteps = ['home', 'connect', 'notion_connect', 'select', 'mapping', 'complete', 'dashboard', 'privacy', 'terms', 'profile', 'pricing', 'quick_start'];
-        if (validSteps.includes(newHash as AppStep)) {
-            setStep(newHash as AppStep);
-        } else if (newHash === '') {
-            // Hash tamamen temizlenirse (örn: back butonu ile) home'a dön
-            setStep('home');
-        }
-    };
-
-    // Dinleyiciyi ekle
-    window.addEventListener('hashchange', handleHashChange);
-
-    // Temizlik fonksiyonu (componentWillUnmount)
-    return () => {
-        window.removeEventListener('hashchange', handleHashChange);
-    };
-}, [setStep]); // setStep değişmediği için tek sefer çalışır, ama dependency listesine eklenmelidir.
 
 const fetchNotionDatabases = useCallback(async (userId: string) => {
     setNotionDatabasesLoading(true);
