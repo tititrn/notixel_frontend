@@ -1,3 +1,9 @@
-# https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+
+# Disallow backend or dev files (optional)
+Disallow: /api/
+Disallow: /admin/
+
+# Sitemap
+Sitemap: https://www.notixel.com/sitemap.xml
